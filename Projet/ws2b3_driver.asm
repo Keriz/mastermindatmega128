@@ -10,6 +10,7 @@
 
 .include macros.asm		; include macro definitions
 .include definitions.asm	; include register/constant definitions
+.include colorslu.asm
 
 ; WS2812b4_WR0	; macro ; arg: void; used: void
 ; purpose: write an active-high zero-pulse to PD1
@@ -35,39 +36,21 @@
 	;nop
 .endm
 
-.org 0
-
-reset:
-	LDSP	RAMEND			; Load Stack Pointer (SP)
-	rcall	ws2812b4_init		; initialize 
-
-main:
-	ldi a0,0x00		;zero-intensity, pixel is off
-	ldi a1,0x00
-	ldi a2,0x00
-	rcall ws2812b4_byte3wr
-
-	ldi a0,0x0f		;low-intensity pure green
-	ldi a1,0x00
-	ldi a2,0x00
-	rcall ws2812b4_byte3wr
-
-	ldi a0,0x00		;low-intensity pure red
-	ldi a1,0x0f
-	ldi a2,0x00
-	rcall ws2812b4_byte3wr
-
-	ldi a0,0x00		;low-intensity pure blue
-	ldi a1,0x00
-	ldi a2,0x0f	
-	rcall ws2812b4_byte3wr
-
-	rcall ws2812b4_reset
-
-end:
-	rjmp end
-
-
+; ws2812b4_ld_colors	;arg: void; used: r16 (rw), r17, r18 (w) (=output)
+; purpose: load a pixel GRB values into registers 
+ws2812b4_ld_colors:
+	ldi zh, high(colors*2)
+	ldi zl, low(colors*2)
+	add zl, a0*3 ; does that work or we should use subi?
+	lpm
+	mov a0, xl
+	inc zl
+	lpm
+	mov a1, xl
+	inc zl
+	lpm
+	mov a2, xl
+	
 ; ws2812b4_init		; arg: void; used: r16 (w)
 ; purpose: initialize AVR to support ws2812b
 ws2812b4_init:
