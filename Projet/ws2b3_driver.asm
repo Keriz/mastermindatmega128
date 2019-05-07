@@ -8,17 +8,18 @@
 ;				LEDs
 ; 20180926 AxS
 
-.include macros.asm		; include macro definitions
-.include definitions.asm	; include register/constant definitions
-.include colorslu.asm
+.include "macros.asm"		; include macro definitions
+.include "definitions.asm"	; include register/constant definitions
+.include "colorslu.asm"
+
 
 ; WS2812b4_WR0	; macro ; arg: void; used: void
 ; purpose: write an active-high zero-pulse to PD1
 ; PORTD is assumed only used for the purpose
 .macro	WS2812b4_WR0
 	clr	u
-	sbi PORTD, 1
-	out PORTD, u
+	sbi PORTA, 1
+	out PORTA, u
 	nop
 	nop
 	;nop
@@ -28,10 +29,10 @@
 ; WS2812b4_WR1	; macro ; arg: void; used: void
 ; purpose: write an active-high one-pulse to PD1
 .macro	WS2812b4_WR1
-	sbi PORTD, 1
+	sbi PORTA, 1
 	nop
 	nop
-	cbi PORTD, 1
+	cbi PORTA, 1
 	;nop
 	;nop
 .endm
@@ -39,22 +40,31 @@
 ; ws2812b4_ld_colors	;arg: void; used: r16 (rw), r17, r18 (w) (=output)
 ; purpose: load a pixel GRB values into registers 
 ws2812b4_ld_colors:
+	push zl
+	push zh
 	ldi zh, high(colors*2)
 	ldi zl, low(colors*2)
-	add zl, a0*3 ; does that work or we should use subi?
+	add zl, a0 ; add 3 times a0
+	add zl, a0
+	add zl, a0
 	lpm
-	mov a0, xl
+	mov a0, r0
 	inc zl
 	lpm
-	mov a1, xl
+	mov a1, r0
 	inc zl
 	lpm
-	mov a2, xl
+	mov a2, r0
+	pop zh
+	pop zl
+
+
+ret
 	
 ; ws2812b4_init		; arg: void; used: r16 (w)
 ; purpose: initialize AVR to support ws2812b
 ws2812b4_init:
-	OUTI	DDRD,0x02
+	OUTI	DDRA,0x02
 ret
 
 ; ws2812b4_byte3wr	; arg: a0,a1,a2 ; used: r16 (w)
@@ -106,6 +116,7 @@ ret
 ; ws2812b4_reset	; arg: void; used: r16 (w)
 ; purpose: reset pulse, configuration becomes effective
 ws2812b4_reset:
-	cbi PORTD, 1
+	cbi PORTA, 1
 	WAIT_US	50 	; 50 us are required, NO smaller works
 ret
+
