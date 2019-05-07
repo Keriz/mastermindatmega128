@@ -83,6 +83,9 @@
     <Compile Include="colorslu.asm">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="lcd.asm">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="m128def.inc">
       <SubType>Code</SubType>
     </Compile>
@@ -96,6 +99,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="main.asm">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="printf.asm">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ws2b3_driver.asm">
