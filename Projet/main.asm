@@ -16,6 +16,8 @@
 	rjmp interrupt_column_minus
 .org INT3addr
 	rjmp interrupt_column_plus
+.org OVF0addr
+	rjmp ovf0
 
 .include "msm.asm"
 
@@ -47,8 +49,12 @@ reset:
 	ldi r16, 0x00
 	sts EIFR, r16
 
+	
+	;configure Timer 0 interrupt
+
 	; enable interrupt flag
 	sei
+
 
 	rcall msm_clear_matrix
 	rcall msm_LED_disp
@@ -66,7 +72,7 @@ main:
 	rcall ws2812b4_byte3wr
 
 	rcall ws2812b4_reset*/
-	;WAIT_US 1000
+	WAIT_US 1000
 	cli
 	rcall msm_LED_disp
 	sei
@@ -88,6 +94,12 @@ main:
 
 
     rjmp main
+
+ovf0:
+	;save SREG and registers
+
+
+reti
 
 interrupt_column_plus:
 	;save sreg & working registers
