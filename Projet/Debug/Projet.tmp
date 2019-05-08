@@ -28,10 +28,10 @@
  </OUTPUT_FILES>
  <LABELS>
   <reset><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>35</LINE></reset>
-  <interrupt_color_minus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>138</LINE></interrupt_color_minus>
-  <interrupt_color_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>133</LINE></interrupt_color_plus>
-  <interrupt_column_minus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>123</LINE></interrupt_column_minus>
-  <interrupt_column_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>118</LINE></interrupt_column_plus>
+  <interrupt_color_minus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>119</LINE></interrupt_color_minus>
+  <interrupt_color_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>101</LINE></interrupt_color_plus>
+  <interrupt_column_minus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>97</LINE></interrupt_column_minus>
+  <interrupt_column_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>92</LINE></interrupt_column_plus>
   <colors><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\colorslu.asm</FILE><LINE>6</LINE></colors>
   <ws2812b4_ld_colors><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>42</LINE></ws2812b4_ld_colors>
   <ws2812b4_init><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>66</LINE></ws2812b4_init>
@@ -54,6 +54,8 @@
   <matrix_colors><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>30</LINE></matrix_colors>
   <msm_code><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>31</LINE></msm_code>
   <num_move><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>32</LINE></num_move>
-  <main><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>58</LINE></main>
+  <main><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>61</LINE></main>
+  <next_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>112</LINE></next_plus>
+  <next><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>131</LINE></next>
  </LABELS>
 </ASSEMBLER_INFO>

@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm Tue May 07 12:15:21 2019
+AVRASM ver. 2.2.7  C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm Wed May 08 12:13:21 2019
 
 [builtin](2): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\m128def.inc'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm(20): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm'
@@ -1243,13 +1243,13 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  .org 0x0000			; memory (PC) location of reset handler
 000000 c077                      	rjmp reset
                                  .org INT0addr
-000002 c0ae                      	rjmp interrupt_color_minus
+000002 c09c                      	rjmp interrupt_color_minus
                                  .org INT1addr
-000004 c0ab                      	rjmp interrupt_color_plus
+000004 c08f                      	rjmp interrupt_color_plus
                                  .org INT2addr
-000006 c0a2                      	rjmp interrupt_column_minus
+000006 c08c                      	rjmp interrupt_column_minus
                                  .org INT3addr
-000008 c09f                      	rjmp interrupt_column_plus
+000008 c089                      	rjmp interrupt_column_plus
                                  
                                  .include "msm.asm"
                                  
@@ -3347,16 +3347,19 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
 00007c dfaa                      	rcall	ws2812b4_init
 00007d e000
 00007e bb01                      	OUTI DDRD, 0x00 ; DDRD as input
-00007f e000                      	ldi r16, 0x00
-000080 bb07                      	out DDRB, r16 ; DDRB as input
-000081 9478                      	sei ; enable interrupt flag
                                  
                                  	; Set Interrupt to trigger when rising edge
-000082 e000                      	ldi r16, (0<<ISC31)|(0<<ISC30)|(0<<ISC21)|(0<<ISC20)|(0<<ISC11)|(0<<ISC10)|(0<<ISC01)|(0<<ISC00)
-000083 9300 006a                 	sts EICRA, r16			 
+00007f e000                      	ldi r16, (0<<ISC31)|(0<<ISC30)|(0<<ISC21)|(0<<ISC20)|(0<<ISC11)|(0<<ISC10)|(0<<ISC01)|(0<<ISC00)
+000080 9300 006a                 	sts EICRA, r16			 
                                  
-000085 e00f                      	ldi r16, (1<<INT0)|(1<<INT1)|(1<<INT2)|(1<<INT3)
-000086 9300 0039                 	sts EIMSK, r16
+000082 e000                      	ldi r16, (0<<INT0)|(0<<INT1)|(0<<INT2)|(0<<INT3)
+000083 bf09                      	out EIMSK, r16
+                                 
+000084 e000                      	ldi r16, 0x00
+000085 9300 0038                 	sts EIFR, r16
+                                 
+                                 	; enable interrupt flag
+000087 9478                      	sei
                                  
 000088 dfe7                      	rcall msm_clear_matrix
 000089 dfdb                      	rcall msm_LED_disp
@@ -3368,45 +3371,16 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  
                                  main:
                                  	; test the different colors
-00008e e020                      	ldi a0, 0x00
-00008f df85                      	rcall ws2812b4_ld_colors
-000090 df99                      	rcall ws2812b4_byte3wr
-                                 
-000091 e021                      	ldi a0, 0x01
-000092 df82                      	rcall ws2812b4_ld_colors
-000093 df96                      	rcall ws2812b4_byte3wr
-                                 
-000094 e022                      	ldi a0, 0x02
-000095 df7f                      	rcall ws2812b4_ld_colors
-000096 df93                      	rcall ws2812b4_byte3wr
-                                 
-000097 e023                      	ldi a0, 0x03
-000098 df7c                      	rcall ws2812b4_ld_colors
-000099 df90                      	rcall ws2812b4_byte3wr
-                                 
-00009a e024                      	ldi a0, 0x04
-00009b df79                      	rcall ws2812b4_ld_colors
-00009c df8d                      	rcall ws2812b4_byte3wr
-                                 
-00009d e025                      	ldi a0, 0x05
-00009e df76                      	rcall ws2812b4_ld_colors
-00009f df8a                      	rcall ws2812b4_byte3wr
-                                 
-0000a0 e026                      	ldi a0, 0x06
-0000a1 df73                      	rcall ws2812b4_ld_colors
-0000a2 df87                      	rcall ws2812b4_byte3wr
-                                 
-0000a3 e027                      	ldi a0, 0x07
-0000a4 df70                      	rcall ws2812b4_ld_colors
-0000a5 df84                      	rcall ws2812b4_byte3wr
                                  
                                  	/*ldi a0, 0x00
                                  	rcall ws2812b4_ld_colors
                                  	rcall ws2812b4_byte3wr
                                  
                                  	rcall ws2812b4_reset*/
-0000a6 dfbe                      	rcall msm_LED_disp
-                                 
+                                 	;WAIT_US 1000
+00008e 94f8                      	cli
+00008f dfd5                      	rcall msm_LED_disp
+000090 9478                      	sei
                                  	;if validate button is on and wasnt on before (no interrupt)
                                  	;waslowbefore=false
                                  	;compute the comparison
@@ -3424,32 +3398,52 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  	;waslowbefore=true
                                  
                                  
-0000a7 cfe6                          rjmp main
+000091 cffc                          rjmp main
                                  
                                  interrupt_column_plus:
                                  	;save sreg & working registers
                                  
-0000a8 9518                      reti
+000092 9518                      reti
                                  
                                  interrupt_column_minus:
-                                 	;save sreg & working registers
-0000a9 e0b1                      	ldi XH, high(MATRIX_RAM)
-0000aa e0a0                          ldi XL, low(MATRIX_RAM)
-0000ab e021                      	ldi a0, 0x01
-0000ac 932c                      	st X, a0
-0000ad ef0f                      	ldi r16, 0xff
-0000ae bb08                      	out	PORTB,r16
-0000af 9518                      reti
+                                 	
+000093 9518                      reti
                                  
                                  interrupt_color_plus:
-                                 	;save sreg & working registers
+000094 930f                      	push r16
+000095 931f                      	push r17
+000096 e0b1                      	ldi XH, high(MATRIX_RAM)
+000097 e0a0                          ldi XL, low(MATRIX_RAM)
+000098 910c                      	ld r16, x
+000099 950a                      	dec r16
+00009a e011                      	ldi r17, 0x01
+                                 	;cp r17, r16
+                                 	;brne next_plus
+                                 	;ldi r16, 0x07
+                                 	next_plus:
+00009b 930c                      	st X, r16
+00009c 911f                      	pop r17
+00009d 910f                      	pop r16
+00009e 9518                      reti
                                  
-0000b0 9518                      reti
                                  
                                  interrupt_color_minus:
                                  	;save sreg & working registers
-                                 
-0000b1 9518                      reti
+00009f 930f                      	push r16
+0000a0 931f                      	push r17
+0000a1 e0b1                      	ldi XH, high(MATRIX_RAM)
+0000a2 e0a0                          ldi XL, low(MATRIX_RAM)
+0000a3 910c                      	ld r16, x
+0000a4 9503                      	inc r16
+0000a5 e017                      	ldi r17, 0x07
+                                 	;cp r16, r17
+                                 	;brne next
+                                 	;ldi r16, 0x01
+                                 	next:
+0000a6 930c                      	st X, r16
+0000a7 911f                      	pop r17
+0000a8 910f                      	pop r16
+0000a9 9518                      reti
                                  
 
 
@@ -3468,12 +3462,12 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega128" register use summary:
-x  :   4 y  :   0 z  :   0 r0 :   3 r1 :   0 r2 :   0 r3 :   9 r4 :   0 
+x  :   7 y  :   0 z  :   0 r0 :   3 r1 :   0 r2 :   0 r3 :   9 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  26 r17:   0 r18:  21 r19:   3 r20:   3 
-r21:   0 r22:   4 r23:   0 r24:   0 r25:   0 r26:   4 r27:   4 r28:   0 
+r13:   0 r14:   0 r15:   0 r16:  34 r17:   6 r18:  11 r19:   3 r20:   3 
+r21:   0 r22:   4 r23:   0 r24:   0 r25:   0 r26:   5 r27:   5 r28:   0 
 r29:   0 r30:   8 r31:   3 
-Registers used: 12 out of 35 (34.3%)
+Registers used: 13 out of 35 (37.1%)
 
 "ATmega128" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   3 adiw  :   0 and   :   0 
@@ -3482,26 +3476,26 @@ brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :   7 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   4 cbr   :   0 
-clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   3 cls   :   0 
+clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :   3 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   0 cpse  :   0 dec   :   8 elpm  :   0 eor   :   0 fmul  :   0 
-fmuls :   0 fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   2 
-jmp   :   0 ld    :   1 ldd   :   0 ldi   :  36 lds   :   0 lpm   :   9 
+cpi   :   0 cpse  :   0 dec   :   9 elpm  :   0 eor   :   0 fmul  :   0 
+fmuls :   0 fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   3 
+jmp   :   0 ld    :   3 ldd   :   0 ldi   :  30 lds   :   0 lpm   :   9 
 lsl   :   3 lsr   :   0 mov   :   4 movw  :   0 mul   :   0 muls  :   0 
-mulsu :   0 neg   :   0 nop   :  12 or    :   0 ori   :   0 out   :   9 
-pop   :   2 push  :   2 rcall :  23 ret   :   7 reti  :   4 rjmp  :  12 
+mulsu :   0 neg   :   0 nop   :  12 or    :   0 ori   :   0 out   :   8 
+pop   :   6 push  :   6 rcall :   7 ret   :   7 reti  :   4 rjmp  :  12 
 rol   :   0 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   6 sbic  :   0 
 sbis  :   0 sbiw  :   0 sbr   :   0 sbrc  :   3 sbrs  :   0 sec   :   0 
-seh   :   0 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 
-sev   :   0 sez   :   0 sleep :   0 spm   :   0 st    :   3 std   :   0 
+seh   :   0 sei   :   2 sen   :   0 ser   :   0 ses   :   0 set   :   0 
+sev   :   0 sez   :   0 sleep :   0 spm   :   0 st    :   4 std   :   0 
 sts   :   2 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
 
-Instructions used: 24 out of 114 (21.1%)
+Instructions used: 25 out of 114 (21.9%)
 
 "ATmega128" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000164    324     24    348  131072   0.3%
+[.cseg] 0x000000 0x000154    308     24    332  131072   0.3%
 [.dseg] 0x000100 0x000145      0     69     69    4096   1.7%
 [.eseg] 0x000000 0x000000      0      0      0    4096   0.0%
 
