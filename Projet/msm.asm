@@ -37,7 +37,7 @@ ret
 
 msm_clear_matrix:
 	ldi b0, n_LEDS
-	ldi a0, 0x00 ; black
+	ldi a0, 0x02 ; black
 	ldi XH, high(MATRIX_RAM)
     ldi XL, low(MATRIX_RAM)
 ;for loop over the matrix and set everything to black
