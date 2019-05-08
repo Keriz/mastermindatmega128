@@ -7,12 +7,18 @@
 .include "macros.asm"
 .include "definitions.asm"
 
+.org 0x0000
  reset:
 	LDSP	RAMEND		;init SP
 	rcall	LCD_init
 	rjmp	main
 .include "lcd.asm"
+.include "printf.asm"
 
+main: ;pour load "nb coups : x"
+	PRINTF	LCD_putc
+.db			"yes1", 0
+/*
 main: ;pour load "nb coups : x"
 	ldi		r16, str0
 	ldi		zl, low(2*str0)
@@ -32,8 +38,8 @@ done:ret
 
 .org 200 ;où les placer ? Généralement en début de programme plutôt.
 str0:
-.db	"Coup num : x" ;regarder comment ajouter un nbr mofdifiable à la place de x
+.db	"Coup num : x" ;regarder comment ajouter un nbr mofdifiable à la place de x 
 str1:
 .db	"GAGNE"
 str2:
-.db	"PERDU"
+.db	"PERDU"*/
