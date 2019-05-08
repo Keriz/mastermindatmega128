@@ -1,14 +1,14 @@
 
-AVRASM ver. 2.2.7  C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm Wed May 08 12:13:21 2019
+AVRASM ver. 2.2.7  C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm Wed May 08 21:33:38 2019
 
 [builtin](2): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\m128def.inc'
-C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm(20): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm'
+C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm(19): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm(8): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm(11): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\macros.asm'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm(12): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\definitions.asm'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm(13): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\colorslu.asm'
 [builtin](2): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\m128def.inc'
-C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm(20): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm'
+C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm(19): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm(8): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm(11): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\macros.asm'
 C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm(12): Including file 'C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\definitions.asm'
@@ -1239,17 +1239,16 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  ; Author : guillaume.thivolet and fahradin.mujovi
                                  ;
                                  ;Entry point of the program, this file includes the main game loop.
+                                 .equ TIMER_NB_CNT = 0x01
+                                 .equ MAX_COLOR = 0x08
+                                 .equ MIN_COLOR = 0x00
+                                 .equ MAX_COLUMN = 0x04
+                                 
                                  .cseg
                                  .org 0x0000			; memory (PC) location of reset handler
-000000 c077                      	rjmp reset
-                                 .org INT0addr
-000002 c09c                      	rjmp interrupt_color_minus
-                                 .org INT1addr
-000004 c08f                      	rjmp interrupt_color_plus
-                                 .org INT2addr
-000006 c08c                      	rjmp interrupt_column_minus
-                                 .org INT3addr
-000008 c089                      	rjmp interrupt_column_plus
+000000 c08f                      	rjmp reset
+                                 .org OVF0addr
+000020 c0b9                      	rjmp ovf0
                                  
                                  .include "msm.asm"
                                  
@@ -3124,19 +3123,19 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                   *   Author: guillaume.thivolet
                                   */ 
                                  colors:
-000009 0000
-00000a 0f00
-00000b 000f
-00000c 0700
-00000d 0000
-00000e 0700
-00000f 0007
-000010 0007
-000011 0703                      	.db 0x00, 0x00, 0x00, 0x0f, 0x0f, 0x00, 0x00, 0x07, 0x0, 0x0, 0x00, 0x07, 0x07, 0x00, 0x07, 0x00, 0x03, 0x07
+000021 0000
+000022 0f00
+000023 000f
+000024 0700
+000025 0000
+000026 0700
+000027 0007
+000028 0007
+000029 0703                      	.db 0x00, 0x00, 0x00, 0x0f, 0x0f, 0x00, 0x00, 0x07, 0x0, 0x0, 0x00, 0x07, 0x07, 0x00, 0x07, 0x00, 0x03, 0x07
                                  	;	black(#000000),   yellow (#ffc12b), red(##ff0001),   blue(#000000),   cyan(#070007),    purple(#800080)
-000012 0007
-000013 0f00
-000014 0f0f                      	.db 0x07, 0x00, 0x00, 0x0f, 0xf, 0xf
+00002a 0007
+00002b 0f00
+00002c 0f0f                      	.db 0x07, 0x00, 0x00, 0x0f, 0xf, 0xf
                                  	;	green(#000007),   white (#ffffff)
                                  	; usage of the lookup table: 
                                  	; 0=black
@@ -3176,114 +3175,114 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  ; ws2812b4_ld_colors	;arg: void; used: r16 (rw), r17, r18 (w) (=output)
                                  ; purpose: load a pixel GRB values into registers 
                                  ws2812b4_ld_colors:
-000015 93ef                      	push zl
-000016 93ff                      	push zh
-000017 e0f0                      	ldi zh, high(colors*2)
-000018 e1e2                      	ldi zl, low(colors*2)
-000019 0fe2                      	add zl, a0 ; add 3 times a0
-00001a 0fe2                      	add zl, a0
-00001b 0fe2                      	add zl, a0
-00001c 95c8                      	lpm
-00001d 2d20                      	mov a0, r0
-00001e 95e3                      	inc zl
-00001f 95c8                      	lpm
-000020 2d30                      	mov a1, r0
-000021 95e3                      	inc zl
-000022 95c8                      	lpm
-000023 2d40                      	mov a2, r0
-000024 91ff                      	pop zh
-000025 91ef                      	pop zl
+00002d 93ef                      	push zl
+00002e 93ff                      	push zh
+00002f e0f0                      	ldi zh, high(colors*2)
+000030 e4e2                      	ldi zl, low(colors*2)
+000031 0fe2                      	add zl, a0 ; add 3 times a0
+000032 0fe2                      	add zl, a0
+000033 0fe2                      	add zl, a0
+000034 95c8                      	lpm
+000035 2d20                      	mov a0, r0
+000036 95e3                      	inc zl
+000037 95c8                      	lpm
+000038 2d30                      	mov a1, r0
+000039 95e3                      	inc zl
+00003a 95c8                      	lpm
+00003b 2d40                      	mov a2, r0
+00003c 91ff                      	pop zh
+00003d 91ef                      	pop zl
                                  
                                  
-000026 9508                      ret
+00003e 9508                      ret
                                  	
                                  ; ws2812b4_init		; arg: void; used: r16 (w)
                                  ; purpose: initialize AVR to support ws2812b
                                  ws2812b4_init:
-000027 e002
-000028 bb0a                      	OUTI	DDRA,0x02
-000029 9508                      ret
+00003f e002
+000040 bb0a                      	OUTI	DDRA,0x02
+000041 9508                      ret
                                  
                                  ; ws2812b4_byte3wr	; arg: a0,a1,a2 ; used: r16 (w)
                                  ; purpose: write contents of a0,a1,a2 (24 bit) into ws2812, 1 LED configuring
                                  ;     GBR color coding, LSB first
                                  ws2812b4_byte3wr:
                                  
-00002a e008                      	ldi w,8
+000042 e008                      	ldi w,8
                                  ws2b3_starta0:
-00002b fd27                      	sbrc a0,7
-00002c c006                      	rjmp	ws2b3w1
-00002d 2433
-00002e 9ad9
-00002f ba3b
-000030 0000
-000031 0000                      	WS2812b4_WR0		
-000032 c004                      	rjmp	ws2b3_nexta0
+000043 fd27                      	sbrc a0,7
+000044 c006                      	rjmp	ws2b3w1
+000045 2433
+000046 9ad9
+000047 ba3b
+000048 0000
+000049 0000                      	WS2812b4_WR0		
+00004a c004                      	rjmp	ws2b3_nexta0
                                  ws2b3w1:
-000033 9ad9
-000034 0000
-000035 0000
-000036 98d9                      	WS2812b4_WR1
+00004b 9ad9
+00004c 0000
+00004d 0000
+00004e 98d9                      	WS2812b4_WR1
                                  ws2b3_nexta0:
-000037 0f22                      	lsl a0
-000038 950a                      	dec	w
-000039 f789                      	brne ws2b3_starta0
+00004f 0f22                      	lsl a0
+000050 950a                      	dec	w
+000051 f789                      	brne ws2b3_starta0
                                  
-00003a e008                      	ldi w,8
+000052 e008                      	ldi w,8
                                  ws2b3_starta1:
-00003b fd37                      	sbrc a1,7
-00003c c006                      	rjmp	ws2b3w1a1
-00003d 2433
-00003e 9ad9
-00003f ba3b
-000040 0000
-000041 0000                      	WS2812b4_WR0		
-000042 c004                      	rjmp	ws2b3_nexta1
+000053 fd37                      	sbrc a1,7
+000054 c006                      	rjmp	ws2b3w1a1
+000055 2433
+000056 9ad9
+000057 ba3b
+000058 0000
+000059 0000                      	WS2812b4_WR0		
+00005a c004                      	rjmp	ws2b3_nexta1
                                  ws2b3w1a1:
-000043 9ad9
-000044 0000
-000045 0000
-000046 98d9                      	WS2812b4_WR1
+00005b 9ad9
+00005c 0000
+00005d 0000
+00005e 98d9                      	WS2812b4_WR1
                                  ws2b3_nexta1:
-000047 0f33                      	lsl a1
-000048 950a                      	dec	w
-000049 f789                      	brne ws2b3_starta1
+00005f 0f33                      	lsl a1
+000060 950a                      	dec	w
+000061 f789                      	brne ws2b3_starta1
                                  
-00004a e008                      	ldi w,8
+000062 e008                      	ldi w,8
                                  ws2b3_starta2:
-00004b fd47                      	sbrc a2,7
-00004c c006                      	rjmp	ws2b3w1a2
-00004d 2433
-00004e 9ad9
-00004f ba3b
-000050 0000
-000051 0000                      	WS2812b4_WR0		
-000052 c004                      	rjmp	ws2b3_nexta2
+000063 fd47                      	sbrc a2,7
+000064 c006                      	rjmp	ws2b3w1a2
+000065 2433
+000066 9ad9
+000067 ba3b
+000068 0000
+000069 0000                      	WS2812b4_WR0		
+00006a c004                      	rjmp	ws2b3_nexta2
                                  ws2b3w1a2:
-000053 9ad9
-000054 0000
-000055 0000
-000056 98d9                      	WS2812b4_WR1
+00006b 9ad9
+00006c 0000
+00006d 0000
+00006e 98d9                      	WS2812b4_WR1
                                  ws2b3_nexta2:
-000057 0f44                      	lsl a2
-000058 950a                      	dec	w
-000059 f789                      	brne ws2b3_starta2
+00006f 0f44                      	lsl a2
+000070 950a                      	dec	w
+000071 f789                      	brne ws2b3_starta2
                                  	
-00005a 9508                      ret
+000072 9508                      ret
                                  
                                  ; ws2812b4_reset	; arg: void; used: r16 (w)
                                  ; purpose: reset pulse, configuration becomes effective
                                  ws2812b4_reset:
-00005b 98d9                      	cbi PORTA, 1
-00005c e401
-00005d 2e30
-00005e e001
-00005f 943a
-000060 f7f1
-000061 943a
-000062 950a
-000063 f7d9                      	WAIT_US	50 	; 50 us are required, NO smaller works
-000064 9508                      ret
+000073 98d9                      	cbi PORTA, 1
+000074 e401
+000075 2e30
+000076 e001
+000077 943a
+000078 f7f1
+000079 943a
+00007a 950a
+00007b f7d9                      	WAIT_US	50 	; 50 us are required, NO smaller works
+00007c 9508                      ret
                                  
                                  
                                  .equ MATRIX_RAM = 0x100
@@ -3293,40 +3292,39 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  ;msm_LED_disp		; arg: void; used: TODO
                                  ; purpose: display the game state to the LED matrix
                                  msm_LED_disp:
-000065 e460                      	ldi b0, n_LEDS ; for loop i < 64 ;maybe r20 is not good because used as b0 later
-000066 e0b1                      	ldi XH, high(MATRIX_RAM)
-000067 e0a0                      	ldi XL, low(MATRIX_RAM)
+00007d e460                      	ldi b0, n_LEDS ; for loop i < 64 ;maybe r20 is not good because used as b0 later
+00007e e0b1                      	ldi XH, high(MATRIX_RAM)
+00007f e0a0                      	ldi XL, low(MATRIX_RAM)
                                  ;for loop over the memory (matrix_colors) (FROM END TO BEGINNING)
                                  ;load color from lookup (ws2812b4_ld_colors)
                                  msm_LED_loop:
-000068 912d                      	ld a0, x+
-000069 dfab                      	rcall ws2812b4_ld_colors
-00006a dfbf                      	rcall ws2812b4_byte3wr
-00006b 956a                      	dec b0
-00006c f7d9                      	brne msm_LED_loop
+000080 912d                      	ld a0, x+
+000081 dfab                      	rcall ws2812b4_ld_colors
+000082 dfbf                      	rcall ws2812b4_byte3wr
+000083 956a                      	dec b0
+000084 f7d9                      	brne msm_LED_loop
                                  	
-00006d dfed                      	rcall ws2812b4_reset ;display the matrix
-00006e 9508                      ret
+000085 dfed                      	rcall ws2812b4_reset ;display the matrix
+000086 9508                      ret
                                  
                                  ;msm_comp_colors	; arg: r18, r19, r20, r21 (=input colors); used: r22, r23, r24, r25 (w) (=output)
                                  ;purpose: Compares the input color combination (each in GRB) and outputs the games results (right side of the matrix).
                                  msm_comp_colors:
                                  	;the output has to be put directly into the SRAM at the right spot
-00006f 9508                      ret
+000087 9508                      ret
                                  
                                  msm_clear_matrix:
-000070 e460                      	ldi b0, n_LEDS
-000071 e020                      	ldi a0, 0x00 ; black
-000072 e0b1                      	ldi XH, high(MATRIX_RAM)
-000073 e0a0                          ldi XL, low(MATRIX_RAM)
+000088 e460                      	ldi b0, n_LEDS
+000089 e020                      	ldi a0, 0x00 ; black
+00008a e0b1                      	ldi XH, high(MATRIX_RAM)
+00008b e0a0                          ldi XL, low(MATRIX_RAM)
                                  ;for loop over the matrix and set everything to black
                                  msm_clear_loop:
-000074 932d                      	st X+, a0
-000075 956a                      	dec b0
-000076 f7e9                      	brne msm_clear_loop
-000077 9508                      ret
+00008c 932d                      	st X+, a0
+00008d 956a                      	dec b0
+00008e f7e9                      	brne msm_clear_loop
+00008f 9508                      ret
                                  
-                                 ;to implement; all the interrupts
                                  
                                  .dseg
                                  .org MATRIX_RAM ;defined in msm.asm
@@ -3337,37 +3335,55 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
 000100                           matrix_colors: .byte n_LEDS ;defined in msm.asm
 000140                           msm_code: .byte 0x04; code is composed of 4 colors
 000144                           num_move: .byte 1;save the number of the current move
+000145                           color_plus_counter: .byte 1
+000146                           color_minus_counter: .byte 1
+000147                           column_minus_counter: .byte 1
+000148                           column_plus_counter: .byte 1
                                  
                                  .cseg
                                  reset:
-000078 ef0f
-000079 bf0d
-00007a e100
-00007b bf0e                      	LDSP	RAMEND
-00007c dfaa                      	rcall	ws2812b4_init
-00007d e000
-00007e bb01                      	OUTI DDRD, 0x00 ; DDRD as input
+000090 ef0f
+000091 bf0d
+000092 e100
+000093 bf0e                      	LDSP	RAMEND
+000094 dfaa                      	rcall	ws2812b4_init
+000095 e000
+000096 bb01                      	OUTI DDRD, 0x00 ; DDRD as input
+000097 ef0f
+000098 bb07                      	OUTI DDRB, 0xff
                                  
                                  	; Set Interrupt to trigger when rising edge
-00007f e000                      	ldi r16, (0<<ISC31)|(0<<ISC30)|(0<<ISC21)|(0<<ISC20)|(0<<ISC11)|(0<<ISC10)|(0<<ISC01)|(0<<ISC00)
-000080 9300 006a                 	sts EICRA, r16			 
+000099 e000                      	ldi r16, (0<<ISC31)|(0<<ISC30)|(0<<ISC21)|(0<<ISC20)|(0<<ISC11)|(0<<ISC10)|(0<<ISC01)|(0<<ISC00)
+00009a 9300 006a                 	sts EICRA, r16			 
                                  
-000082 e000                      	ldi r16, (0<<INT0)|(0<<INT1)|(0<<INT2)|(0<<INT3)
-000083 bf09                      	out EIMSK, r16
+00009c e000                      	ldi r16, (0<<INT0)|(0<<INT1)|(0<<INT2)|(0<<INT3)
+00009d bf09                      	out EIMSK, r16
                                  
-000084 e000                      	ldi r16, 0x00
-000085 9300 0038                 	sts EIFR, r16
+00009e e000                      	ldi r16, 0x00
+00009f 9300 0038                 	sts EIFR, r16
+                                 
+                                 	
+                                 	;configure Timer 0 interrupt
+0000a1 e003
+0000a2 bf03                      	OUTI TCCR0,(0<<CS02)|(1<<CS01)|(1<<CS00)
+0000a3 e008
+0000a4 bf00                      	OUTI ASSR, (1<<AS0)
+0000a5 e001
+0000a6 bf07                      	OUTI TIMSK, (1<<TOIE0)
                                  
                                  	; enable interrupt flag
-000087 9478                      	sei
+0000a7 9478                      	sei
                                  
-000088 dfe7                      	rcall msm_clear_matrix
-000089 dfdb                      	rcall msm_LED_disp
+0000a8 dfdf                      	rcall msm_clear_matrix
+0000a9 dfd3                      	rcall msm_LED_disp
                                  
-00008a e0b1                      	ldi XH, high(num_move)
-00008b e4a4                          ldi XL, low(num_move)
-00008c e020                      	ldi a0, 0x00 ;move number 0
-00008d 932c                      	st x, a0
+0000aa e0b1                      	ldi XH, high(num_move)
+0000ab e4a4                          ldi XL, low(num_move)
+0000ac e020                      	ldi a0, 0x00 ;move number 0
+0000ad 932c                      	st x, a0
+                                 
+0000ae e0d0                      	ldi yh, 0x00 ; pointing to row 0
+0000af e0c0                      	ldi yl, 0x00 ; pointing to column 0
                                  
                                  main:
                                  	; test the different colors
@@ -3377,10 +3393,59 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  	rcall ws2812b4_byte3wr
                                  
                                  	rcall ws2812b4_reset*/
-                                 	;WAIT_US 1000
-00008e 94f8                      	cli
-00008f dfd5                      	rcall msm_LED_disp
-000090 9478                      	sei
+0000b0 e0b1                      	ldi XH, high(color_plus_counter)
+0000b1 e4a5                          ldi XL, low(color_plus_counter)
+0000b2 e011                      	ldi r17, TIMER_NB_CNT
+                                 
+0000b3 910c                      	ld r16, x ; check button color_plus ; maybe we should do a macro
+0000b4 1701                      	cp r16, r17
+0000b5 f018                      	brlo no_color_plus
+0000b6 e000                      	ldi r16, 0x00
+0000b7 930c                      	st x, r16
+0000b8 d056                      	rcall color_plus
+                                 	no_color_plus:
+                                 
+0000b9 95a3                      	inc xl ; check button color_minus 
+0000ba 910c                      	ld r16, x
+0000bb 1701                      	cp r16, r17
+0000bc f018                      	brlo no_color_minus
+0000bd e000                      	ldi r16, 0x00
+0000be 930c                      	st x, r16
+0000bf d05f                      	rcall color_minus
+                                 	no_color_minus:
+                                 
+0000c0 95a3                      	inc xl ; check button column_minus 
+0000c1 910c                      	ld r16, x
+0000c2 1701                      	cp r16, r17
+0000c3 f018                      	brlo no_column_minus
+0000c4 e000                      	ldi r16, 0x00
+0000c5 930c                      	st x, r16
+0000c6 d068                      	rcall column_minus
+                                 	no_column_minus:
+                                 
+0000c7 95a3                      	inc xl ; check button column_plus
+0000c8 910c                      	ld r16, x
+0000c9 1701                      	cp r16, r17
+0000ca f018                      	brlo no_column_plus
+0000cb e000                      	ldi r16, 0x00
+0000cc 930c                      	st x, r16
+0000cd d066                      	rcall column_plus
+                                 	no_column_plus:
+                                 
+0000ce e304
+0000cf 2e30
+0000d0 e006
+0000d1 943a
+0000d2 f7f1
+0000d3 943a
+0000d4 950a
+0000d5 f7d9                      	WAIT_US 1000
+                                 
+                                 	;disable timer
+0000d6 94f8                      	cli
+0000d7 dfa5                      	rcall msm_LED_disp
+0000d8 9478                      	sei
+                                 
                                  	;if validate button is on and wasnt on before (no interrupt)
                                  	;waslowbefore=false
                                  	;compute the comparison
@@ -3397,54 +3462,130 @@ C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_
                                  	;if validate button is low
                                  	;waslowbefore=true
                                  
+0000d9 cfd6                          rjmp main
                                  
-000091 cffc                          rjmp main
+                                 ovf0:
+                                 	;save SREG and registers
+0000da 932f                      	push a0
+0000db 933f                      	push a1
+0000dc 934f                      	push a2
+0000dd 93af                      	push xl
+0000de 93bf                      	push xh
+                                 	;too many instructions maybe
+                                 	;for loop to be added
                                  
-                                 interrupt_column_plus:
-                                 	;save sreg & working registers
-                                 
-000092 9518                      reti
-                                 
-                                 interrupt_column_minus:
+0000df b330                      	in a1, PIND
+0000e0 e0b1                      	ldi XH, high(color_plus_counter)
+0000e1 e4a5                          ldi XL, low(color_plus_counter)
                                  	
-000093 9518                      reti
+0000e2 912c                      	ld a0, x
+0000e3 e041                      	ldi a2, 0x01;button state wanted
+0000e4 7031                      	andi a1, 0x01
+0000e5 1334                      	cpse a1, a2
+0000e6 9523                      	inc a0
+0000e7 e040                      	ldi a2, 0x00
+0000e8 1334                      	cpse a1, a2
+0000e9 e020                      	ldi a0, 0x00
+0000ea 932d                      	st x+, a0
+                                 	
+0000eb b330                      	in a1, PIND
+0000ec 912c                      	ld a0, x
+0000ed e042                      	ldi a2, 0x02;button state wanted
+0000ee 7032                      	andi a1, 0x02;mask
+0000ef 1334                      	cpse a1, a2
+0000f0 9523                      	inc a0
+0000f1 e040                      	ldi a2, 0x00
+0000f2 1334                      	cpse a1, a2
+0000f3 e020                      	ldi a0, 0x00
+0000f4 932d                      	st x+, a0
                                  
-                                 interrupt_color_plus:
-000094 930f                      	push r16
-000095 931f                      	push r17
-000096 e0b1                      	ldi XH, high(MATRIX_RAM)
-000097 e0a0                          ldi XL, low(MATRIX_RAM)
-000098 910c                      	ld r16, x
-000099 950a                      	dec r16
-00009a e011                      	ldi r17, 0x01
-                                 	;cp r17, r16
-                                 	;brne next_plus
-                                 	;ldi r16, 0x07
+0000f5 b330                      	in a1, PIND
+0000f6 912c                      	ld a0, x
+0000f7 e044                      	ldi a2, 0x04
+0000f8 7034                      	andi a1, 0x04
+0000f9 1334                      	cpse a1, a2
+0000fa 9523                      	inc a0
+0000fb e040                      	ldi a2, 0x00
+0000fc 1334                      	cpse a1, a2
+0000fd e020                      	ldi a0, 0x00
+0000fe 932d                      	st x+, a0
+                                 
+0000ff b330                      	in a1, PIND
+000100 912c                      	ld a0, x
+000101 e048                      	ldi a2, 0x08
+000102 7038                      	andi a1, 0x08
+000103 1334                      	cpse a1, a2
+000104 9523                      	inc a0
+000105 e040                      	ldi a2, 0x00
+000106 1334                      	cpse a1, a2
+000107 e020                      	ldi a0, 0x00
+000108 932c                      	st x, a0
+                                 
+000109 91bf                      	pop xh
+00010a 91af                      	pop xl
+00010b 914f                      	pop a2
+00010c 913f                      	pop a1
+00010d 912f                      	pop a0
+00010e 9518                      reti
+                                 
+                                 color_plus:
+                                 	;save sreg??
+00010f 930f                      	push r16
+000110 93af                      	push XL
+000111 93bf                      	push XH
+000112 e0b1                      	ldi XH, high(MATRIX_RAM)
+000113 e0a0                          ldi XL, low(MATRIX_RAM)
+000114 0fac                      	add xl, yl; add offset
+000115 910c                      	ld r16, x
+000116 3000                      	cpi r16, MIN_COLOR
+000117 f409                      	brne next_plus
+000118 e008                      	ldi r16, MAX_COLOR
                                  	next_plus:
-00009b 930c                      	st X, r16
-00009c 911f                      	pop r17
-00009d 910f                      	pop r16
-00009e 9518                      reti
+000119 950a                      	dec r16
+00011a 930c                      	st x, r16
+00011b 91bf                      	pop XH
+00011c 91af                      	pop XL
+00011d 910f                      	pop r16
+00011e 9508                      ret
                                  
+                                 color_minus:
+                                 	;save sreg? & working registers
+00011f 930f                      	push r16
+000120 93af                      	push XL
+000121 93bf                      	push XH
+000122 e0b1                      	ldi XH, high(MATRIX_RAM);
+000123 e0a0                          ldi XL, low(MATRIX_RAM);
+000124 0fac                      	add xl, yl; switch column
+000125 910c                      	ld r16, x;
+000126 9503                      	inc r16
+000127 3008                      	cpi r16, MAX_COLOR
+000128 f409                      	brne next_minus
+000129 e001                      	ldi r16, MIN_COLOR + 1
+                                 	next_minus:
+00012a 930c                      	st X, r16
+00012b 91bf                      	pop XH
+00012c 91af                      	pop XL
+00012d 910f                      	pop r16
+00012e 9508                      ret
                                  
-                                 interrupt_color_minus:
-                                 	;save sreg & working registers
-00009f 930f                      	push r16
-0000a0 931f                      	push r17
-0000a1 e0b1                      	ldi XH, high(MATRIX_RAM)
-0000a2 e0a0                          ldi XL, low(MATRIX_RAM)
-0000a3 910c                      	ld r16, x
-0000a4 9503                      	inc r16
-0000a5 e017                      	ldi r17, 0x07
-                                 	;cp r16, r17
-                                 	;brne next
-                                 	;ldi r16, 0x01
-                                 	next:
-0000a6 930c                      	st X, r16
-0000a7 911f                      	pop r17
-0000a8 910f                      	pop r16
-0000a9 9518                      reti
+                                 column_minus:
+                                 	;save sreg? & working registers
                                  
+00012f 95ca                      	dec yl
+000130 3fcf                      	cpi yl, 0xff ; MIN COLUMN - 1
+000131 f409                      	brne next_colu_minus
+000132 e0c4                      	ldi yl, MAX_COLUMN
+                                 	next_colu_minus:
+000133 9508                      ret
+                                 
+                                 column_plus:
+                                 	;save sreg? & working registers
+000134 95c3                      	inc yl
+000135 30c5                      	cpi yl, MAX_COLUMN + 1
+000136 f409                      	brne next_colu_plus
+000137 e0c0                      	ldi yl, 0x00
+                                 	next_colu_plus:
+000138 9508                      ret
 
 
 RESOURCE USE INFORMATION
@@ -3462,41 +3603,41 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega128" register use summary:
-x  :   7 y  :   0 z  :   0 r0 :   3 r1 :   0 r2 :   0 r3 :   9 r4 :   0 
+x  :  23 y  :   0 z  :   0 r0 :   3 r1 :   0 r2 :   0 r3 :  12 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  34 r17:   6 r18:  11 r19:   3 r20:   3 
-r21:   0 r22:   4 r23:   0 r24:   0 r25:   0 r26:   5 r27:   5 r28:   0 
-r29:   0 r30:   8 r31:   3 
-Registers used: 13 out of 35 (37.1%)
+r13:   0 r14:   0 r15:   0 r16:  66 r17:   5 r18:  29 r19:  21 r20:  21 
+r21:   0 r22:   4 r23:   0 r24:   0 r25:   0 r26:  18 r27:  13 r28:   9 
+r29:   1 r30:   8 r31:   3 
+Registers used: 15 out of 35 (42.9%)
 
 "ATmega128" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   3 adiw  :   0 and   :   0 
-andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   5 adiw  :   0 and   :   0 
+andi  :   4 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
-brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   7 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brhs  :   0 brid  :   0 brie  :   0 brlo  :   4 brlt  :   0 brmi  :   0 
+brne  :  13 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   4 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :   3 cls   :   0 
-clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   0 cpse  :   0 dec   :   9 elpm  :   0 eor   :   0 fmul  :   0 
-fmuls :   0 fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   3 
-jmp   :   0 ld    :   3 ldd   :   0 ldi   :  30 lds   :   0 lpm   :   9 
-lsl   :   3 lsr   :   0 mov   :   4 movw  :   0 mul   :   0 muls  :   0 
-mulsu :   0 neg   :   0 nop   :  12 or    :   0 ori   :   0 out   :   8 
-pop   :   6 push  :   6 rcall :   7 ret   :   7 reti  :   4 rjmp  :  12 
+clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   4 cpc   :   0 
+cpi   :   4 cpse  :   8 dec   :  13 elpm  :   0 eor   :   0 fmul  :   0 
+fmuls :   0 fmulsu:   0 icall :   0 ijmp  :   0 in    :   4 inc   :  11 
+jmp   :   0 ld    :  11 ldd   :   0 ldi   :  61 lds   :   0 lpm   :   9 
+lsl   :   3 lsr   :   0 mov   :   5 movw  :   0 mul   :   0 muls  :   0 
+mulsu :   0 neg   :   0 nop   :  12 or    :   0 ori   :   0 out   :  12 
+pop   :  13 push  :  13 rcall :  11 ret   :  11 reti  :   1 rjmp  :   9 
 rol   :   0 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   6 sbic  :   0 
 sbis  :   0 sbiw  :   0 sbr   :   0 sbrc  :   3 sbrs  :   0 sec   :   0 
 seh   :   0 sei   :   2 sen   :   0 ser   :   0 ses   :   0 set   :   0 
-sev   :   0 sez   :   0 sleep :   0 spm   :   0 st    :   4 std   :   0 
+sev   :   0 sez   :   0 sleep :   0 spm   :   0 st    :  12 std   :   0 
 sts   :   2 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
 
-Instructions used: 25 out of 114 (21.9%)
+Instructions used: 31 out of 114 (27.2%)
 
 "ATmega128" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000154    308     24    332  131072   0.3%
-[.dseg] 0x000100 0x000145      0     69     69    4096   1.7%
+[.cseg] 0x000000 0x000272    540     24    564  131072   0.4%
+[.dseg] 0x000100 0x000149      0     73     73    4096   1.8%
 [.eseg] 0x000000 0x000000      0      0      0    4096   0.0%
 
 Assembly complete, 0 errors, 0 warnings
