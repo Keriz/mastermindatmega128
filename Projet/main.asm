@@ -16,6 +16,8 @@
 	rjmp interrupt_column_minus
 .org INT3addr
 	rjmp interrupt_column_plus
+.org OVF0addr
+	rjmp ovf0
 
 .include "msm.asm"
 
@@ -36,16 +38,23 @@ reset:
 	LDSP	RAMEND
 	rcall	ws2812b4_init
 	OUTI DDRD, 0x00 ; DDRD as input
-	ldi r16, 0x00
-	out DDRB, r16 ; DDRB as input
-	sei ; enable interrupt flag
 
 	; Set Interrupt to trigger when rising edge
 	ldi r16, (0<<ISC31)|(0<<ISC30)|(0<<ISC21)|(0<<ISC20)|(0<<ISC11)|(0<<ISC10)|(0<<ISC01)|(0<<ISC00)
 	sts EICRA, r16			 
 
-	ldi r16, (1<<INT0)|(1<<INT1)|(1<<INT2)|(1<<INT3)
-	sts EIMSK, r16
+	ldi r16, (0<<INT0)|(0<<INT1)|(0<<INT2)|(0<<INT3)
+	out EIMSK, r16
+
+	ldi r16, 0x00
+	sts EIFR, r16
+
+	
+	;configure Timer 0 interrupt
+
+	; enable interrupt flag
+	sei
+
 
 	rcall msm_clear_matrix
 	rcall msm_LED_disp
@@ -57,45 +66,16 @@ reset:
 
 main:
 	; test the different colors
-	ldi a0, 0x00
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	ldi a0, 0x01
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	ldi a0, 0x02
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	ldi a0, 0x03
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	ldi a0, 0x04
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	ldi a0, 0x05
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	ldi a0, 0x06
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	ldi a0, 0x07
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
 
 	/*ldi a0, 0x00
 	rcall ws2812b4_ld_colors
 	rcall ws2812b4_byte3wr
 
 	rcall ws2812b4_reset*/
+	WAIT_US 1000
+	cli
 	rcall msm_LED_disp
-
+	sei
 	;if validate button is on and wasnt on before (no interrupt)
 	;waslowbefore=false
 	;compute the comparison
@@ -115,28 +95,54 @@ main:
 
     rjmp main
 
+ovf0:
+	;save SREG and registers
+
+
+reti
+
 interrupt_column_plus:
 	;save sreg & working registers
 
 reti
 
 interrupt_column_minus:
-	;save sreg & working registers
-	ldi XH, high(MATRIX_RAM)
-    ldi XL, low(MATRIX_RAM)
-	ldi a0, 0x01
-	st X, a0
-	ldi r16, 0xff
-	out	PORTB,r16
+	
 reti
 
 interrupt_color_plus:
-	;save sreg & working registers
-
+	push r16
+	push r17
+	ldi XH, high(MATRIX_RAM)
+    ldi XL, low(MATRIX_RAM)
+	ld r16, x
+	dec r16
+	ldi r17, 0x01
+	;cp r17, r16
+	;brne next_plus
+	;ldi r16, 0x07
+	next_plus:
+	st X, r16
+	pop r17
+	pop r16
 reti
+
 
 interrupt_color_minus:
 	;save sreg & working registers
-
+	push r16
+	push r17
+	ldi XH, high(MATRIX_RAM)
+    ldi XL, low(MATRIX_RAM)
+	ld r16, x
+	inc r16
+	ldi r17, 0x07
+	;cp r16, r17
+	;brne next
+	;ldi r16, 0x01
+	next:
+	st X, r16
+	pop r17
+	pop r16
 reti
 

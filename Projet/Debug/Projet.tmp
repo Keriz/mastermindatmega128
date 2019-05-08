@@ -1,12 +1,13 @@
 <ASSEMBLER_INFO>
  <VERSION>2.2.7</VERSION>
  <DEVICE>"ATmega128"</DEVICE>
- <WORKING_DIR>C:\Users\fmujo\Documents\mastermindatmega128\Projet\Debug</WORKING_DIR>
+ <WORKING_DIR>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\Debug</WORKING_DIR>
  <INCLUDE_PATH>
   <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.209\avrasm\inc</DIR>
   <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
   <DIR></DIR>
  </INCLUDE_PATH>
+<<<<<<< HEAD
  <SOURCE_FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\lcd_use.asm</SOURCE_FILE>
  <INCLUDED_FILES>
   <FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\m128def.inc</FILE>
@@ -14,9 +15,19 @@
   <FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\definitions.asm</FILE>
   <FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\lcd.asm</FILE>
   <FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\printf.asm</FILE>
+=======
+ <SOURCE_FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\m128def.inc</FILE>
+  <FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm</FILE>
+  <FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE>
+  <FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\macros.asm</FILE>
+  <FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\definitions.asm</FILE>
+  <FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\colorslu.asm</FILE>
+>>>>>>> f8df1242ec425d8697c411911c8289eaf0f74708
  </INCLUDED_FILES>
  <OBJECT_FILES>
-  <FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\Debug\Projet.obj</FILE>
+  <FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\Debug\Projet.obj</FILE>
  </OBJECT_FILES>
  <HEX_FILES>
   <FILE>Projet.hex</FILE>
@@ -26,6 +37,7 @@
   <FILE>Projet.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
+<<<<<<< HEAD
   <reset><FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\lcd_use.asm</FILE><LINE>11</LINE></reset>
   <LCD_init><FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\lcd.asm</FILE><LINE>47</LINE></LCD_init>
   <main><FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\lcd_use.asm</FILE><LINE>18</LINE></main>
@@ -85,5 +97,37 @@
   <_mul41><FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\printf.asm</FILE><LINE>434</LINE></_mul41>
   <__m41><FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\printf.asm</FILE><LINE>436</LINE></__m41>
   <__d41><FILE>C:\Users\fmujo\Documents\mastermindatmega128\Projet\printf.asm</FILE><LINE>452</LINE></__d41>
+=======
+  <reset><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>35</LINE></reset>
+  <interrupt_color_minus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>119</LINE></interrupt_color_minus>
+  <interrupt_color_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>101</LINE></interrupt_color_plus>
+  <interrupt_column_minus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>97</LINE></interrupt_column_minus>
+  <interrupt_column_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>92</LINE></interrupt_column_plus>
+  <colors><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\colorslu.asm</FILE><LINE>6</LINE></colors>
+  <ws2812b4_ld_colors><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>42</LINE></ws2812b4_ld_colors>
+  <ws2812b4_init><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>66</LINE></ws2812b4_init>
+  <ws2812b4_byte3wr><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>73</LINE></ws2812b4_byte3wr>
+  <ws2b3_starta0><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>76</LINE></ws2b3_starta0>
+  <ws2b3w1><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>81</LINE></ws2b3w1>
+  <ws2b3_nexta0><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>83</LINE></ws2b3_nexta0>
+  <ws2b3_starta1><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>89</LINE></ws2b3_starta1>
+  <ws2b3w1a1><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>94</LINE></ws2b3w1a1>
+  <ws2b3_nexta1><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>96</LINE></ws2b3_nexta1>
+  <ws2b3_starta2><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>102</LINE></ws2b3_starta2>
+  <ws2b3w1a2><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>107</LINE></ws2b3w1a2>
+  <ws2b3_nexta2><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>109</LINE></ws2b3_nexta2>
+  <ws2812b4_reset><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\ws2b3_driver.asm</FILE><LINE>118</LINE></ws2812b4_reset>
+  <msm_LED_disp><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm</FILE><LINE>16</LINE></msm_LED_disp>
+  <msm_LED_loop><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm</FILE><LINE>22</LINE></msm_LED_loop>
+  <msm_comp_colors><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm</FILE><LINE>34</LINE></msm_comp_colors>
+  <msm_clear_matrix><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm</FILE><LINE>38</LINE></msm_clear_matrix>
+  <msm_clear_loop><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\msm.asm</FILE><LINE>44</LINE></msm_clear_loop>
+  <matrix_colors><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>30</LINE></matrix_colors>
+  <msm_code><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>31</LINE></msm_code>
+  <num_move><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>32</LINE></num_move>
+  <main><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>61</LINE></main>
+  <next_plus><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>112</LINE></next_plus>
+  <next><FILE>C:\Users\guillaume.thivolet\Documents\EPFL\Microcontroleurs\Projet\Projet\main.asm</FILE><LINE>131</LINE></next>
+>>>>>>> f8df1242ec425d8697c411911c8289eaf0f74708
  </LABELS>
 </ASSEMBLER_INFO>
