@@ -8,8 +8,10 @@
 .include "definitions.asm"
 
 .org 0x0000
- reset:
+reset:
 	LDSP	RAMEND		;init SP
+	OUTI	DDRB, 0xff
+	OUTI	PORTB, 0x00
 	rcall	LCD_init
 	rjmp	main
 .include "lcd.asm"
