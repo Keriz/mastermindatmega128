@@ -215,11 +215,11 @@ color_plus:
     ldi XL, low(MATRIX_RAM)
 	add xl, yl; add offset
 	ld r16, x
+	dec r16
 	cpi r16, MIN_COLOR
 	brne next_plus
 	ldi r16, MAX_COLOR
 	next_plus:
-	dec r16
 	st x, r16
 	pop XH
 	pop XL
@@ -234,9 +234,10 @@ color_minus:
 	ldi XH, high(MATRIX_RAM);
     ldi XL, low(MATRIX_RAM);
 	add xl, yl; switch column
+	;add row offset
 	ld r16, x;
 	inc r16
-	cpi r16, MAX_COLOR
+	cpi r16, MAX_COLOR + 1
 	brne next_minus
 	ldi r16, MIN_COLOR + 1
 	next_minus:
@@ -248,11 +249,10 @@ ret
 
 column_minus:
 	;save sreg? & working registers
-
 	dec yl
 	cpi yl, 0xff ; MIN COLUMN - 1
 	brne next_colu_minus
-	ldi yl, MAX_COLUMN
+	ldi yl, MAX_COLUMN - 1 ;starts at 0
 	next_colu_minus:
 ret
 
