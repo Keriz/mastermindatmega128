@@ -216,9 +216,13 @@ color_plus:
 	add xl, yl; add offset
 	ld r16, x
 	dec r16
-	cpi r16, MIN_COLOR
+	cpi r16, 0xff
+	brne black
+	ldi r16, MAX_COLOR - 1
+	black:
+	cpi r16, 0x00
 	brne next_plus
-	ldi r16, MAX_COLOR
+	ldi r16, MAX_COLOR - 1
 	next_plus:
 	st x, r16
 	pop XH
@@ -237,7 +241,7 @@ color_minus:
 	;add row offset
 	ld r16, x;
 	inc r16
-	cpi r16, MAX_COLOR + 1
+	cpi r16, MAX_COLOR
 	brne next_minus
 	ldi r16, MIN_COLOR + 1
 	next_minus:
