@@ -17,7 +17,8 @@
 	rjmp ovf0
 
 .include "msm.asm"
-
+.include "lcd.asm"
+.include "printf.asm"
 
 .dseg
 .org MATRIX_RAM ;defined in msm.asm
@@ -28,10 +29,12 @@
 matrix_colors: .byte n_LEDS ;defined in msm.asm
 msm_code: .byte 0x04; code is composed of 4 colors
 num_move: .byte 1;save the number of the current move
+win: .byte 1
 color_plus_counter: .byte 1
 color_minus_counter: .byte 1
 column_minus_counter: .byte 1
 column_plus_counter: .byte 1
+validate_counter: .byte 1
 
 .cseg
 reset:
@@ -39,6 +42,8 @@ reset:
 	rcall	ws2812b4_init
 	OUTI DDRD, 0x00 ; DDRD as input
 	OUTI DDRB, 0xff
+	OUTI	PORTB, 0x00
+	rcall	LCD_init
 
 	; Set Interrupt to trigger when rising edge
 	ldi r16, (0<<ISC31)|(0<<ISC30)|(0<<ISC21)|(0<<ISC20)|(0<<ISC11)|(0<<ISC10)|(0<<ISC01)|(0<<ISC00)
@@ -117,6 +122,15 @@ main:
 	rcall column_plus
 	no_column_plus:
 
+	inc xl ;check button validate
+	ld r16, x
+	cp r16, r17
+	brlo no_validate
+	ldi r16, 0x00
+	st x, r16
+	rcall validate
+	no_validate:
+
 	WAIT_US 1000
 
 	;disable timer
@@ -124,21 +138,18 @@ main:
 	rcall msm_LED_disp
 	sei
 
-	;if validate button is on and wasnt on before (no interrupt)
-	;waslowbefore=false
-	;compute the comparison
-	;set the result in the game matrix
-	;display game matrix
-	;if coup=derniercoup (7)
-	;LCD string indice = GAGNE OU PERDU
-	;display LCD string
-	;wait for the next validate input press to start the game again and rjmp to reset
-	;else
-	;LCD string = coup num: X
-	;display LCD string
 
-	;if validate button is low
-	;waslowbefore=true
+	;if validate button is on and wasnt on before (no interrupt)
+		;compute the comparison
+		;set the result in the game matrix
+		;display game matrix
+		;if coup=derniercoup (7)
+			;LCD string indice = GAGNE OU PERDU
+			;display LCD string
+		;wait for the next validate input press to start the game again and rjmp to reset
+		;else
+			;LCD string = coup num: X
+			;display LCD string
 
     rjmp main
 
@@ -197,8 +208,19 @@ ovf0:
 	ldi a2, 0x00
 	cpse a1, a2
 	ldi a0, 0x00
-	st x, a0
+	st x+, a0
 
+	in a1, PIND
+	ld a0, x
+	ldi a2, 0x10 ;=16
+	andi a1, 0x10
+	cpse a1, a2
+	inc a0
+	ldi a2, 0x00
+	cpse a1, a2
+	ldi a0, 0x00
+	st x, a0
+	
 	pop xh
 	pop xl
 	pop a2
@@ -263,8 +285,85 @@ ret
 column_plus:
 	;save sreg? & working registers
 	inc yl
-	cpi yl, MAX_COLUMN + 1
+	cpi yl, MAX_COLUMN 
 	brne next_colu_plus
 	ldi yl, 0x00
 	next_colu_plus:
 ret
+
+validate:
+	;save sreg? & working registers
+	push	xl
+	push	xh
+	push	r16
+	push	r17
+	ldi		XH, high(num_move)
+	ldi		XL, low(num_move)
+	ld		r16, x
+	inc		r16
+	rcall	msm_comp_colors ;fait rien pour le moment
+	cpi		r16, 0x08	;if round == dernier (8)
+	brne	game_notlose
+	PRINTF	LCD_putc
+	.db		"PERDU", 0
+	;RESET GAME
+	game_notlose:
+	rcall	set_win
+	ldi		XH, high(win)
+	ldi		XL, low(win)
+	ld		r17, x
+	cpi		r17, 0x00 ;compare si pas encore win
+	breq	game_notover
+	PRINTF	LCD_putc
+	.db		"GAGNE", 0	;display win
+	;reset game after x time or x button pressed
+	game_notover:
+	;display nb_coup
+	;inc		yh	;passe à la ligne d'après.
+	pop	r17
+	pop	r16
+	pop	xh
+	pop	xl
+ret
+
+set_win:
+	push		xl
+	push		xh
+	push		r16
+
+	ldi		b0, 0x01
+	ldi		b1, 0x01
+	ldi		b2, 0x01
+	ldi		b3, 0x01
+
+	cpi		b0, 0x01
+	brne	not_win
+	cpi		b1, 0x01
+	brne	not_win
+	cpi		b2, 0x01
+	brne	not_win
+	cpi		b3, 0x01
+	brne	not_win
+	ldi		XH, high(win)
+	ldi		XL, low(win)
+	ldi		r16, 0x01
+	st		x, r16
+	not_win:
+	pop		r16
+	pop		xh
+	pop		xl
+ret
+	;if validate button is on and wasnt on before (no interrupt)
+		;compute the comparison
+		;set the result in the game matrix
+		;display game matrix
+		;if coup=derniercoup (7)
+			;LCD string indice = PERDU
+			;display LCD string
+		;elif win == 1
+			;LCD string indice = GAGNE
+			;display LCD string
+		;wait for the next validate input press to start the game again and rjmp to reset
+		;else
+			;LCD string = coup num: X
+			;display LCD string
