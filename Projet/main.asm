@@ -27,6 +27,7 @@
 
 matrix_colors: .byte n_LEDS ;defined in msm.asm
 msm_code: .byte 0x04; code is composed of 4 colors
+msm_code_result_flags: .byte 0x04
 num_move: .byte 1;save the number of the current move
 color_plus_counter: .byte 1
 color_minus_counter: .byte 1
