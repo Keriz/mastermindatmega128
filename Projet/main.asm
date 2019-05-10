@@ -52,7 +52,7 @@ reset:
 
 	;configure Timer 0 & 2 interrupt
 	OUTI	TCCR0,	(0<<CS02)|(1<<CS01)|(1<<CS00)
-	OUTI	TCCR0,	(0<<CS22)|(0<<CS21)|(1<<CS20)
+	OUTI	TCCR2,	(0<<CS22)|(0<<CS21)|(1<<CS20)
 	OUTI	ASSR,	(1<<AS0)
 	OUTI	TIMSK,	(1<<TOIE0)|(1<<TOIE2)
 
@@ -81,7 +81,7 @@ reset:
     ldi		XL, low(validate_counter)
 
 	game_not_started:
-	ldi		r17,0; TIMER_NB_CNT
+	ldi		r17, 0x02; TIMER_NB_CNT
 	ld		r16, x ; check button validate 
 	cp		r16, r17
 	brlo	game_not_started
@@ -92,7 +92,7 @@ reset:
 main:
 	ldi		XH, high(color_plus_counter)
     ldi		XL, low(color_plus_counter)
-	ldi		r17, 0;TIMER_NB_CNT
+	ldi		r17, TIMER_NB_CNT
 
 	ld		r16, x ; check button color_plus ; maybe we should do a macro
 	cp		r16, r17
@@ -111,7 +111,7 @@ main:
 	rcall	color_minus
 	no_color_minus:
 
-	ldi		r17, 0x00 ;0.5s to switch columns & validate
+	ldi		r17, 0x02 ;0.5s to switch columns & validate
 	inc		xl ; check button column_minus 
 	ld		r16, x
 	cp		r16, r17
@@ -138,16 +138,16 @@ main:
 	st		x, r16
 	rcall	validate
 	no_validate:
-
-	inc		xl ;check button validate
+	/*
+	inc		xl ;check button reset
 	ld		r16, x
 	cp		r16, r17
-	brlo	no reset
+	brlo	no_reset
 	ldi		r16, 0x00
 	st		x, r16
-	ijmp	reset	
+	jmp	reset	
 	no_reset:
-
+	*/
 	WAIT_US 1000
 
 	;disable timer
@@ -175,7 +175,7 @@ ovf2:
 	ld		r16, x
 	inc		r16
 	st		x+, r16
-	cp		r16, 0x00 ;maybe ovf flag is set in the previous inc, just to be sure
+	cpi		r16, 0x00 ;maybe ovf flag is set in the previous inc, just to be sure
 	brne    ovf_rand
 	ld		r16, x
 	inc		r16
@@ -250,6 +250,17 @@ ovf0:
 	ldi		a2, 0x00
 	cpse	a1, a2
 	ldi		a0, 0x00
+	st		x+, a0
+	
+	in		a1, PIND
+	ld		a0, x
+	ldi		a2, 0x20 ;=32
+	andi	a1, 0x20
+	cpse	a1, a2
+	inc		a0
+	ldi		a2, 0x00
+	cpse	a1, a2
+	ldi		a0, 0x00
 	st		x, a0
 	
 	pop		xh
@@ -300,9 +311,8 @@ color_minus:
 	ldi XH, high(MATRIX_RAM);
     ldi XL, low(MATRIX_RAM);
 	add xl, yl; switch column
-	add		xl, yl					; add column offset
+	add		xl, yh					; add column offset
 	add		xl, yh					;offset row...
-	add		xl, yh
 	add		xl, yh
 	add		xl, yh
 	add		xl, yh
@@ -342,6 +352,7 @@ ret
 
 
 extract_random_num:
+	
 	ldi		XH, high(random_num)
     ldi		XL, low(random_num)
 	ld		r17, x+
@@ -418,20 +429,24 @@ validate:
 	;push	xh
 	push	a0
 	push	a1
+	push	xl
+	push	xh
 	ldi		XH, high(num_move)
 	ldi		XL, low(num_move)
 	ld		a0, x
-	ldi		a1, 0x00
+	;ldi		a0, 0x00
+	inc		a0
 	rcall	LCD_clear	
 	PRINTF	LCD_putc
-	.db		"Move Num:", FDEC2,a, 0	;display num_move
-	inc		a1
-	st		X, a0		
+	.db		"Move Num:", FDEC2, a, 0	;display num_move
+	st		X, a0	
+	pop		xh
+	pop		xl	
 	pop		a1
 	pop		a0
 	;pop	xh
 	;pop	xl
-	;inc	yh	;passe à la ligne d'après.
+	;inc		yh	;passe à la ligne d'après.
 	pop		r17
 	pop		r16
 	pop		xh
@@ -443,6 +458,8 @@ set_win:
 	push	xh
 	push	r16
 	push	r17
+	push	yl
+	push	yh
 
 	ldi		yl, low(msm_code_result_flags)		;result flags for color comparison output
 	ldi		yh, high(msm_code_result_flags)
@@ -464,6 +481,8 @@ set_win:
 	ldi		r16, 0x01
 	st		x, r16
 	not_win:
+	pop		yh
+	pop		yl
 	pop		r17
 	pop		r16
 	pop		xh

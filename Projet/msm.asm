@@ -89,6 +89,11 @@ not_green:
 ;msm_LED_disp		; arg: void; used: TODO
 ; purpose: display the game state to the LED matrix
 msm_LED_disp:
+	push	b0
+	push	xh
+	push	xl
+	push	a0
+
 	ldi		b0, n_LEDS				; for loop i < 64 ;maybe r20 is not good because used as b0 later
 	ldi		XH, high(MATRIX_RAM)
 	ldi		XL, low(MATRIX_RAM)
@@ -100,6 +105,11 @@ msm_LED_loop:
 	rcall	ws2812b4_byte3wr
 	dec		b0
 	brne	msm_LED_loop
+
+	pop		a0
+	pop		xl
+	pop		xh
+	pop		b0
 	
 	rcall	ws2812b4_reset			;display the matrix
 ret
@@ -261,13 +271,22 @@ not_dk_green:
 ret
 
 msm_clear_matrix:
-	ldi b0, n_LEDS
-	ldi a0, 0x00 ; black
-	ldi XH, high(MATRIX_RAM)
-    ldi XL, low(MATRIX_RAM)
+	push	b0
+	push	a0
+	push	xl
+	push	xh
+	ldi		b0, n_LEDS
+	ldi		a0, 0x00 ; black
+	ldi		XH, high(MATRIX_RAM)
+    ldi		XL, low(MATRIX_RAM)
 ;for loop over the matrix and set everything to black
 msm_clear_loop:
-	st	X+, a0
-	dec	b0
-	brne msm_clear_loop
+	st		X+, a0
+	dec		b0
+	cpi		b0, 0xff
+	brne	msm_clear_loop
+	pop		xh
+	pop		xl
+	pop		a0
+	pop		b0
 ret
