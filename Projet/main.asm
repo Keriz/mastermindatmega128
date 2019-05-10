@@ -399,7 +399,7 @@ validate:
 	pop		a0
 	;pop	xh
 	;pop	xl
-	;inc		yh	;passe à la ligne d'après.
+	;inc	yh	;passe à la ligne d'après.
 	pop		r17
 	pop		r16
 	pop		xh
