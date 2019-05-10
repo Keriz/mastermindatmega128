@@ -18,8 +18,11 @@ reset:
 .include "printf.asm"
 
 main: ;pour load "nb coups : x"
+	ldi		a0, 0x01
+	ldi		a1, 0x00
+	rcall	LCD_clear
 	PRINTF	LCD_putc
-.db			"yes1", 0
+	.db		"Move Num:", FDEC2,a, 0
 /*
 main: ;pour load "nb coups : x"
 	ldi		r16, str0
