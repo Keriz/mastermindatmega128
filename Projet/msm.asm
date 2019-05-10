@@ -2,27 +2,27 @@
  * msm.asm
  *
  *  Created: 5/3/2019 7:31:33 PM
- *   Author: guillaume.thivolet
+ *   Author: guillaume.thivolet & fahradin.mujovi
  */ 
 
 .include "ws2b3_driver.asm"
 
 .equ MATRIX_RAM = 0x0100
 
-.equ n_LEDS = 0x0040 ;( 8x8 = 64 pixels to work with)
+.equ n_LEDS = 0x0040		;( 8x8 = 64 pixels to work with)
 
-.equ CODE = 0x0140;MATRIX_RAM + n_LEDS
+.equ CODE = 0x0140			;MATRIX_RAM + n_LEDS
 
-.equ RESULTS = 0x0144;MATRIX_RAM + n_LEDS + 0x04
+.equ RESULTS = 0x0144		;MATRIX_RAM + n_LEDS + 0x04
 
-.equ color_black = 0x00
-.equ color_yellow = 0x01
-.equ color_red = 0x02
-.equ color_blue = 0x03
-.equ color_cyan = 0x04
-.equ color_purple = 0x05
-.equ color_green = 0x06
-.equ color_white = 0x07
+.equ color_black	=	0x00
+.equ color_yellow	=	0x01
+.equ color_red		=	0x02
+.equ color_blue		=	0x03
+.equ color_cyan		=	0x04
+.equ color_purple	=	0x05
+.equ color_green	=	0x06
+.equ color_white	=	0x07
 
 .macro COMP_GREEN	; args: 
 	push	r16
@@ -140,6 +140,7 @@ msm_comp_colors:
 	subi	yl, -0x03
 	subi	zl, -0x03
 
+	push r16
 	ldi		r16, 0x03
 	
 comp_green_loop:
@@ -156,7 +157,7 @@ not_green:
 	dec		r16
 	cpi		r16, 0xff
 	brne	comp_green_loop
-						;verify if some colors are already well positioned
+	;verify if some colors are already well positioned
 	
 	ldi		ZH, high(CODE)
 	ldi		ZL, low(CODE)			;z -> code
@@ -165,8 +166,7 @@ not_green:
 	ldi		YH, high(RESULTS)
 	ldi		YL, low(RESULTS)		;result flags for color comparison output
 
-	;subi	yl, -(0x03)				;offset column
-	ldi r16, 0x00
+	pop		r16
 	add		xl, r16					;offset row...
 	add		xl, r16
 	add		xl, r16
@@ -235,18 +235,18 @@ not_dk_green:
 
 	end_loop:
 
-	subi xl, -0x04
+	subi	xl, -0x04
 
 	ldi		YH, high(RESULTS)
 	ldi		YL, low(RESULTS)		;result flags for color comparison output
-	ld r16, Y
-	st x+, r16
-	ldd r16, Y+1
-	st x+, r16
-	ldd r16, Y+2
-	st x+, r16
-	ldd r16, Y+3
-	st x, r16
+	ld		r16, Y
+	st		x+, r16
+	ldd		r16, Y+1
+	st		x+, r16
+	ldd		r16, Y+2
+	st		x+, r16
+	ldd		r16, Y+3
+	st		x, r16
 
 	pop		yh
 	pop		yl

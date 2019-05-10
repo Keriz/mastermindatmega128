@@ -139,6 +139,15 @@ main:
 	rcall	validate
 	no_validate:
 
+	inc		xl ;check button validate
+	ld		r16, x
+	cp		r16, r17
+	brlo	no reset
+	ldi		r16, 0x00
+	st		x, r16
+	ijmp	reset	
+	no_reset:
+
 	WAIT_US 1000
 
 	;disable timer
@@ -158,7 +167,7 @@ main:
 			;LCD string = coup num: X
 			;display LCD string
 
-    rjmp main
+    rjmp	main
 
 ovf2:
 	ldi		XH, high(random_num)
@@ -166,98 +175,107 @@ ovf2:
 	ld		r16, x
 	inc		r16
 	st		x+, r16
+	cp		r16, 0x00 ;maybe ovf flag is set in the previous inc, just to be sure
+	brne    ovf_rand
 	ld		r16, x
 	inc		r16
 	st		x, r16
+	ovf_rand:
 reti
 
 ovf0:
 	;save SREG and registers
-	in _sreg, SREG
-	push a0
-	push a1
-	push a2
-	push xl
-	push xh
+	in		_sreg, SREG
+	push	a0
+	push	a1
+	push	a2
+	push	xl
+	push	xh
 	;too many instructions maybe
 	;for loop to be added
 
-	;random number (1-7) generation
-
-	in a1, PIND
-	ldi XH, high(color_plus_counter)
-    ldi XL, low(color_plus_counter)
+	in		a1, PIND
+	ldi		XH, high(color_plus_counter)
+    ldi		XL, low(color_plus_counter)
 	
-	ld a0, x
-	ldi a2, 0x01;button state wanted
-	andi a1, 0x01
-	cpse a1, a2
-	inc a0
-	ldi a2, 0x00
-	cpse a1, a2
-	ldi a0, 0x00
-	st x+, a0
+	ld		a0, x
+	ldi		a2, 0x01;button state wanted
+	andi	a1, 0x01
+	cpse	a1, a2
+	inc		a0
+	ldi		a2, 0x00
+	cpse	a1, a2
+	ldi		a0, 0x00
+	st		x+, a0
 	
-	in a1, PIND
-	ld a0, x
-	ldi a2, 0x02;button state wanted
-	andi a1, 0x02;mask
-	cpse a1, a2
-	inc a0
-	ldi a2, 0x00
-	cpse a1, a2
-	ldi a0, 0x00
-	st x+, a0
+	in		a1, PIND
+	ld		a0, x
+	ldi		a2, 0x02;button state wanted
+	andi	a1, 0x02;mask
+	cpse	a1, a2
+	inc		a0
+	ldi		a2, 0x00
+	cpse	a1, a2
+	ldi		a0, 0x00
+	st		x+, a0
 
-	in a1, PIND
-	ld a0, x
-	ldi a2, 0x04
-	andi a1, 0x04
-	cpse a1, a2
-	inc a0
-	ldi a2, 0x00
-	cpse a1, a2
-	ldi a0, 0x00
-	st x+, a0
+	in		a1, PIND
+	ld		a0, x
+	ldi		a2, 0x04
+	andi	a1, 0x04
+	cpse	a1, a2
+	inc		a0
+	ldi		a2, 0x00
+	cpse	a1, a2
+	ldi		a0, 0x00
+	st		x+, a0
 
-	in a1, PIND
-	ld a0, x
-	ldi a2, 0x08
-	andi a1, 0x08
-	cpse a1, a2
-	inc a0
-	ldi a2, 0x00
-	cpse a1, a2
-	ldi a0, 0x00
-	st x+, a0
+	in		a1, PIND
+	ld		a0, x
+	ldi		a2, 0x08
+	andi	a1, 0x08
+	cpse	a1, a2
+	inc		a0
+	ldi		a2, 0x00
+	cpse	a1, a2
+	ldi		a0, 0x00
+	st		x+, a0
 
-	in a1, PIND
-	ld a0, x
-	ldi a2, 0x10 ;=16
-	andi a1, 0x10
-	cpse a1, a2
-	inc a0
-	ldi a2, 0x00
-	cpse a1, a2
-	ldi a0, 0x00
-	st x, a0
+	in		a1, PIND
+	ld		a0, x
+	ldi		a2, 0x10 ;=16
+	andi	a1, 0x10
+	cpse	a1, a2
+	inc		a0
+	ldi		a2, 0x00
+	cpse	a1, a2
+	ldi		a0, 0x00
+	st		x, a0
 	
-	pop xh
-	pop xl
-	pop a2
-	pop a1
-	pop a0
-	out SREG,_sreg
+	pop		xh
+	pop		xl
+	pop		a2
+	pop		a1
+	pop		a0
+	out		SREG,_sreg
 reti
 
 color_plus:
 	;save sreg??
-	push r16
-	push XL
-	push XH
-	ldi XH, high(MATRIX_RAM)
-    ldi XL, low(MATRIX_RAM)
-	add xl, yl				; add offset
+	push	r16
+	push	XL
+	push	XH
+	ldi		XH, high(MATRIX_RAM)
+    ldi		XL, low(MATRIX_RAM)
+	add		xl, yl					; add column offset
+	add		xl, yh					;offset row...
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
 	ld r16, x
 	dec r16
 	cpi r16, 0xff
@@ -282,34 +300,43 @@ color_minus:
 	ldi XH, high(MATRIX_RAM);
     ldi XL, low(MATRIX_RAM);
 	add xl, yl; switch column
-	;TODO add row offset
-	ld r16, x;
-	inc r16
-	cpi r16, MAX_COLOR
-	brne next_minus
-	ldi r16, MIN_COLOR + 1
+	add		xl, yl					; add column offset
+	add		xl, yh					;offset row...
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+	add		xl, yh
+
+	ld		r16, x
+	inc		r16
+	cpi		r16, MAX_COLOR
+	brne	next_minus
+	ldi		r16, MIN_COLOR + 1
 	next_minus:
-	st X, r16
-	pop XH
-	pop XL
-	pop r16
+	st		X, r16
+	pop		XH
+	pop		XL
+	pop		r16
 ret
 
 column_minus:
 	;save sreg? & working registers
-	dec yl
-	cpi yl, 0xff ; MIN COLUMN - 1
-	brne next_colu_minus
-	ldi yl, MAX_COLUMN - 1 ;starts at 0
+	dec		yl
+	cpi		yl, 0xff ; MIN COLUMN - 1
+	brne	next_colu_minus
+	ldi		yl, MAX_COLUMN - 1 ;starts at 0
 	next_colu_minus:
 ret
 
 column_plus:
 	;save sreg? & working registers
-	inc yl
-	cpi yl, MAX_COLUMN 
-	brne next_colu_plus
-	ldi yl, 0x00
+	inc		yl
+	cpi		yl, MAX_COLUMN 
+	brne	next_colu_plus
+	ldi		yl, 0x00
 	next_colu_plus:
 ret
 
@@ -317,36 +344,41 @@ ret
 extract_random_num:
 	ldi		XH, high(random_num)
     ldi		XL, low(random_num)
-	ld		r17, x
+	ld		r17, x+
 
-	mov r16, r17
-	andi	r16, 0b00000111
-	inc		r16						; -> be sure that it wont be black
-	mov		a0, r16					;assign first code color
-
-	mov r16, r17
-	lsr r16
-	lsr r16
-	lsr r16
-	andi	r16, 0b00000111
-	inc		r16						; -> be sure that it wont be black
-	andi	r16, 0b00000111
-	mov		a0, r16					;assign first code color
-
-	mov r16, r17
+	mov		r16, r17
 	andi	r16, 0b00000111
 	inc		r16						; -> be sure that it wont be black
 	andi	r16, 0b00000111			;remove possible overflow
 	mov		a0, r16					;assign first code color
 
-	mov r16, r17
+	mov		r16, r17
+	lsr		r16
+	lsr		r16
+	lsr		r16
 	andi	r16, 0b00000111
 	inc		r16						; -> be sure that it wont be black
-	mov		a0, r16					;assign first code color
+	andi	r16, 0b00000111
+	mov		a1, r16					;assign first code color
 
-	ldi		a1, 0x02 ;move number 0
-	ldi		a2, 0x03				;
-	ldi		a3, 0x04				
+	ld		r17, x					;use byte 2
+	mov		r16, r17
+	andi	r16, 0b00000111
+	inc		r16						; -> be sure that it wont be black
+	andi	r16, 0b00000111			;remove possible overflow
+	mov		a2, r16					;assign first code color
+
+	mov		r16, r17
+	lsr		r16
+	lsr		r16
+	lsr		r16
+	andi	r16, 0b00000111
+	inc		r16						; -> be sure that it wont be black
+	andi	r16, 0b00000111	
+	mov		a3, r16					;assign first code color
+
+	ldi		XH, high(msm_code)
+    ldi		XL, low(msm_code)
 	st		x+, a0
 	st		x+, a1
 	st		x+,	a2
