@@ -15,6 +15,8 @@
 	rjmp reset
 .org OVF0addr
 	rjmp ovf0
+.org OVF1addr
+	rjmp ovf1
 
 .include "msm.asm"
 .include "lcd.asm"
@@ -30,13 +32,14 @@ matrix_colors:			.byte n_LEDS;defined in msm.asm
 msm_code:				.byte 0x04	; code is composed of 4 colors
 msm_code_result_flags:	.byte 0x04
 num_move:				.byte 1		;save the number of the current move
+random_num:				.byte 4
 win:					.byte 1
 color_plus_counter:		.byte 1
 color_minus_counter:	.byte 1
 column_minus_counter:	.byte 1
 column_plus_counter:	.byte 1
 validate_counter:		.byte 1
-
+reset_counter:			.byte 1
 .cseg
 reset:
 	LDSP	RAMEND
@@ -59,8 +62,9 @@ reset:
 	
 	;configure Timer 0 interrupt
 	OUTI	TCCR0,	(0<<CS02)|(1<<CS01)|(1<<CS00)
+	OUTI	TCCR0,	(0<<CS22)|(0<<CS21)|(1<<CS00)
 	OUTI	ASSR,	(1<<AS0)
-	OUTI	TIMSK,	(1<<TOIE0)
+	OUTI	TIMSK,	(1<<TOIE0, 1<<TOIE1)
 
 	; enable interrupt flag
 	sei
@@ -76,13 +80,21 @@ reset:
 	ldi		XH, high(msm_code)
     ldi		XL, low(msm_code)
 	ldi		a0, 0x01 ;move number 0
-	ldi		a1, 0x01 ;move number 0
-	ldi		a2, 0x01 ;move number 0
-	ldi		a3, 0x01 ;move number 0
+	ldi		a1, 0x02 ;move number 0
+	ldi		a2, 0x03 ;move number 0
+	ldi		a3, 0x04 ;move number 0
 	st		x+, a0
 	st		x+, a1
 	st		x+,	a2
 	st		x,	a3
+
+	ldi		XH, high(msm_code_result_flags)
+    ldi		XL, low(msm_code_result_flags)
+	ldi		a0, 0x00 ;move number 0
+	st		x+, a0
+	st		x+, a0
+	st		x+,	a0
+	st		x,	a0
 
 	ldi		yh, 0x00 ; pointing to row 0
 	ldi		yl, 0x00 ; pointing to column 0
@@ -97,7 +109,7 @@ main:
 	rcall ws2812b4_reset*/
 	ldi		XH, high(color_plus_counter)
     ldi		XL, low(color_plus_counter)
-	ldi		r17, 0;TIMER_NB_CNT
+	ldi		r17, TIMER_NB_CNT
 
 	ld		r16, x ; check button color_plus ; maybe we should do a macro
 	cp		r16, r17
@@ -163,6 +175,16 @@ main:
 
     rjmp main
 
+ovf1:
+	ldi XH, high(random_num)
+    ldi XL, low(random_num)
+	ld a42, x
+	inc a42
+	cpi	a42, 0x08
+	brne
+
+reti
+
 ovf0:
 	;save SREG and registers
 	in _sreg, SREG
@@ -173,6 +195,8 @@ ovf0:
 	push xh
 	;too many instructions maybe
 	;for loop to be added
+
+	;random number (1-7) generation
 
 	in a1, PIND
 	ldi XH, high(color_plus_counter)

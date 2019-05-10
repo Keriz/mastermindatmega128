@@ -7,13 +7,13 @@
 
 .include "ws2b3_driver.asm"
 
-.equ MATRIX_RAM = 0x100
+.equ MATRIX_RAM = 0x0100
 
-.equ n_LEDS = 0x40 ;( 8x8 = 64 pixels to work with)
+.equ n_LEDS = 0x0040 ;( 8x8 = 64 pixels to work with)
 
-.equ CODE = MATRIX_RAM + n_LEDS
+.equ CODE = 0x0140;MATRIX_RAM + n_LEDS
 
-.equ RESULTS = MATRIX_RAM + n_LEDS + 0x04
+.equ RESULTS = 0x0144;MATRIX_RAM + n_LEDS + 0x04
 
 .equ color_black = 0x00
 .equ color_yellow = 0x01
@@ -29,13 +29,13 @@
 	push	r17
 	push	r18
 	push	r19
-	mov		r16, yh					;keep track of row
-	push	xl
-	push	xh
-	push	zl
-	push	zh
-	push	yl
-	push	yh
+	mov		r16, YH					;keep track of row
+	push	XL
+	push	XH
+	push	ZL
+	push	ZH
+	push	YL
+	push	YH
 	
 	ldi		zl, low(CODE)			;z -> code
 	ldi		zh, high(CODE)
@@ -53,12 +53,12 @@
 	add		xl, r16
 	add		xl, r16
 
-	subi	xl, -(0x03) ; starts at max
-	subi	yl, -(0x03) ; starts at max
-	subi	zl, -(0x03) ; starts at max
+	subi	xl, -0x03
+	subi	yl, -0x03
+	subi	zl, -0x03
 
 	ldi		r16, 0x03
-
+	
 comp_green_loop:
 	ld		r18, z
 	ld		r19, x
@@ -67,19 +67,19 @@ comp_green_loop:
 	ldi		r17, color_green
 	st		y, r17					; put a green flag on this position
 not_green:
-	dec		xl
 	dec		zl
+	dec		xl
 	dec		yl
 	dec		r16
 	cpi		r16, 0xff
 	brne	comp_green_loop
 
-	pop		yh
-	pop		yl
-	pop		zh
-	pop		zl
-	pop		xh
-	pop		xl
+	pop		YH
+	pop		YL
+	pop		ZH
+	pop		ZL
+	pop		XH
+	pop		XL
 	pop		r19
 	pop		r18
 	pop		r17
@@ -118,17 +118,55 @@ msm_comp_colors:
 	push	zh
 	push	yl
 	push	yh
-	
 
-	COMP_GREEN						;verify if some colors are already well positioned
-	
-	ldi		zh, high(CODE)
+	;COMP_GREEN
 	ldi		zl, low(CODE)			;z -> code
+	ldi		zh, high(CODE)
 	ldi		xl, low(MATRIX_RAM)
-	ldi		xh, high(MATRIX_RAM)	;x -> user inputs
-	ldi		yl, low(RESULTS)		;result flags for color comparison output
+	ldi		xh, high(MATRIX_RAM)
+	ldi		yl, low(RESULTS)
 	ldi		yh, high(RESULTS)
+
+	add		xl, r16				;offset row
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+
+	subi	xl, -0x03
+	subi	yl, -0x03
+	subi	zl, -0x03
+
+	ldi		r16, 0x03
+	
+comp_green_loop:
+	ld		r18, z
+	ld		r19, x
+	cp		r18, r19				; compare code and user color
+	brne	not_green
+	ldi		r17, color_green
+	st		y, r17					; put a green flag on this position
+not_green:
+	dec		zl
+	dec		xl
+	dec		yl
+	dec		r16
+	cpi		r16, 0xff
+	brne	comp_green_loop
+						;verify if some colors are already well positioned
+	
+	ldi		ZH, high(CODE)
+	ldi		ZL, low(CODE)			;z -> code
+	ldi		XH, high(MATRIX_RAM)	;x -> user inputs
+	ldi		XL, low(MATRIX_RAM)
+	ldi		YH, high(RESULTS)
+	ldi		YL, low(RESULTS)		;result flags for color comparison output
+
 	;subi	yl, -(0x03)				;offset column
+	ldi r16, 0x00
 	add		xl, r16					;offset row...
 	add		xl, r16
 	add		xl, r16
@@ -145,7 +183,7 @@ msm_comp_colors:
 				;si d_k !=3
 					;check rouge
 					;si rouge break
-/*
+
 msm_comp_colors_loop_k:
  	dec		r16
 	cpi		r16, 0xff
@@ -165,6 +203,7 @@ msm_comp_colors_loop_i:
 	cpi		r18, color_green		;compare if code color is already green (=good color at good position)
 	brne	not_dk_green
 	sub		yl, r17
+	dec		r17
 	rjmp	msm_comp_colors_loop_i
 not_dk_green:
 	sub		yl, r17					;remove code offset
@@ -178,20 +217,28 @@ not_dk_green:
 	cp		r18, r19				;compare code and player combination
 	brne	color_not_red
 	add		yl, r17					;add offset to result flag
+	ld		r18, y
+	sub		yl, r17
+	cpi		r18, color_red			;check if there was already a red flag at this position
+	breq	color_not_red
+	add		yl, r17	
 	ldi		r18, color_red
 	st		y, r18					;put a red flag on this position
 	sub		yl, r17
 	rjmp	msm_comp_colors_loop_k	;check next position
 	color_not_red:
-	 
 	dec		r17
 	cpi		r17, 0xff
 	brne	msm_comp_colors_loop_i
-	end_loop:*/
+	cpi		r16, 0xff
+	brne	msm_comp_colors_loop_k
 
-	subi xl, -(0x04) ; BUGGGGGGGGGGGGGg avec ^les yl
-	ldi		yl, low(RESULTS)		;result flags for color comparison output
-	ldi		yh, high(RESULTS)
+	end_loop:
+
+	subi xl, -0x04
+
+	ldi		YH, high(RESULTS)
+	ldi		YL, low(RESULTS)		;result flags for color comparison output
 	ld r16, Y
 	st x+, r16
 	ldd r16, Y+1
@@ -200,7 +247,7 @@ not_dk_green:
 	st x+, r16
 	ldd r16, Y+3
 	st x, r16
-	
+
 	pop		yh
 	pop		yl
 	pop		zh
