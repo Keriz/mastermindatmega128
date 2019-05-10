@@ -81,7 +81,7 @@ reset:
     ldi		XL, low(validate_counter)
 
 	game_not_started:
-	ldi		r17, TIMER_NB_CNT
+	ldi		r17,0; TIMER_NB_CNT
 	ld		r16, x ; check button validate 
 	cp		r16, r17
 	brlo	game_not_started
@@ -92,7 +92,7 @@ reset:
 main:
 	ldi		XH, high(color_plus_counter)
     ldi		XL, low(color_plus_counter)
-	ldi		r17, TIMER_NB_CNT
+	ldi		r17, 0;TIMER_NB_CNT
 
 	ld		r16, x ; check button color_plus ; maybe we should do a macro
 	cp		r16, r17
@@ -111,7 +111,7 @@ main:
 	rcall	color_minus
 	no_color_minus:
 
-	ldi		r17, 0x02 ;0.5s to switch columns & validate
+	ldi		r17, 0x00 ;0.5s to switch columns & validate
 	inc		xl ; check button column_minus 
 	ld		r16, x
 	cp		r16, r17
@@ -398,6 +398,7 @@ validate:
 	rcall	msm_comp_colors ;fait rien pour le moment
 	cpi		r16, 0x08	;if round == dernier (8)
 	brne	game_notlose
+	rcall	LCD_clear
 	PRINTF	LCD_putc
 	.db		"PERDU", 0
 	;RESET GAME
@@ -408,11 +409,28 @@ validate:
 	ld		r17, x
 	cpi		r17, 0x00 ;compare si pas encore win
 	breq	game_notover
+	rcall	LCD_clear	;ajouté
 	PRINTF	LCD_putc
 	.db		"GAGNE", 0	;display win
 	;reset game after x time or x button pressed
 	game_notover:
-	;display nb_coup
+	;push	xl
+	;push	xh
+	push	a0
+	push	a1
+	ldi		XH, high(num_move)
+	ldi		XL, low(num_move)
+	ld		a0, x
+	ldi		a1, 0x00
+	rcall	LCD_clear	
+	PRINTF	LCD_putc
+	.db		"Move Num:", FDEC2,a, 0	;display num_move
+	inc		a1
+	st		X, a0		
+	pop		a1
+	pop		a0
+	;pop	xh
+	;pop	xl
 	;inc		yh	;passe à la ligne d'après.
 	pop		r17
 	pop		r16
