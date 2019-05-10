@@ -341,6 +341,7 @@ validate:
 	rcall	msm_comp_colors ;fait rien pour le moment
 	cpi		r16, 0x08	;if round == dernier (8)
 	brne	game_notlose
+	rcall	LCD_clear
 	PRINTF	LCD_putc
 	.db		"PERDU", 0
 	;RESET GAME
@@ -351,6 +352,7 @@ validate:
 	ld		r17, x
 	cpi		r17, 0x00 ;compare si pas encore win
 	breq	game_notover
+	rcall	LCD_clear	;ajouté
 	PRINTF	LCD_putc
 	.db		"GAGNE", 0	;display win
 	;reset game after x time or x button pressed
