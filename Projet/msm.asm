@@ -15,15 +15,6 @@
 
 .equ RESULTS = 0x0144		;MATRIX_RAM + n_LEDS + 0x04
 
-.equ color_black	=	0x00
-.equ color_yellow	=	0x01
-.equ color_red		=	0x02
-.equ color_blue		=	0x03
-.equ color_cyan		=	0x04
-.equ color_purple	=	0x05
-.equ color_green	=	0x06
-.equ color_white	=	0x07
-
 .macro COMP_GREEN	; args: 
 	push	r16
 	push	r17
