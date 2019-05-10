@@ -25,36 +25,37 @@
 .equ color_white = 0x07
 
 .macro COMP_GREEN	; args: 
+	push	r16
+	push	r17
+	push	r18
+	push	r19
+	mov		r16, yh					;keep track of row
 	push	xl
 	push	xh
 	push	zl
 	push	zh
 	push	yl
 	push	yh
-	push	r16
-	push	r17
-	push	r18
-	push	r19
-
-	ldi		zh, high(CODE)
+	
 	ldi		zl, low(CODE)			;z -> code
+	ldi		zh, high(CODE)
 	ldi		xl, low(MATRIX_RAM)
 	ldi		xh, high(MATRIX_RAM)
 	ldi		yl, low(RESULTS)
 	ldi		yh, high(RESULTS)
 
-	add		x, yh					;offset row
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
+	add		xl, r16				;offset row
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
 
-	subi	x, -(0x03) ; starts at max
-	subi	y, -(0x03) ; starts at max
-	subi	z, -(0x03) ; starts at max
+	subi	xl, -(0x03) ; starts at max
+	subi	yl, -(0x03) ; starts at max
+	subi	zl, -(0x03) ; starts at max
 
 	ldi		r16, 0x03
 
@@ -62,26 +63,27 @@ comp_green_loop:
 	ld		r18, z
 	ld		r19, x
 	cp		r18, r19				; compare code and user color
-	brne	comp_green_not_green:
+	brne	not_green
 	ldi		r17, color_green
-	st		y, r17					; put a white flag on this position
-comp_green_not_green:
-	dec		x
-	dec		z
-	dec		y
-	cp		r16, 0xff
+	st		y, r17					; put a green flag on this position
+not_green:
+	dec		xl
+	dec		zl
+	dec		yl
+	dec		r16
+	cpi		r16, 0xff
 	brne	comp_green_loop
 
-	pop		r19
-	pop		r18
-	pop		r17
-	pop		r16
 	pop		yh
 	pop		yl
 	pop		zh
 	pop		zl
 	pop		xh
 	pop		xl
+	pop		r19
+	pop		r18
+	pop		r17
+	pop		r16
 .endmacro
 
 ;msm_LED_disp		; arg: void; used: TODO
@@ -109,75 +111,96 @@ msm_comp_colors:
 	push	r17
 	push	r18
 	push	r19
+	mov		r16, yh					;keep track of row
 	push	xl
 	push	xh
 	push	zl
 	push	zh
 	push	yl
 	push	yh
+	
 
+	COMP_GREEN						;verify if some colors are already well positioned
+	
 	ldi		zh, high(CODE)
 	ldi		zl, low(CODE)			;z -> code
 	ldi		xl, low(MATRIX_RAM)
 	ldi		xh, high(MATRIX_RAM)	;x -> user inputs
 	ldi		yl, low(RESULTS)		;result flags for color comparison output
 	ldi		yh, high(RESULTS)
-	add		x, yh					;offset row...
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
-	add		x, yh
-
+	;subi	yl, -(0x03)				;offset column
+	add		xl, r16					;offset row...
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	add		xl, r16
+	
 	ldi		r16, 0x04
-	COMP_GREEN						;verify if some colors are already well positioned
 	;pour i=3:0
 		;si d_i != 3
 			;pour k=3:0
 				;si d_k !=3
 					;check rouge
 					;si rouge break
+/*
 msm_comp_colors_loop_k:
-	dec		r16
-	add		zl, r16					;add column offset to code  
+ 	dec		r16
+	cpi		r16, 0xff
+	breq	end_loop
+	add		yl, r16					;add column offset to code  
 	ld		r18, y					;load code color
 	cpi		r18, color_green		;compare if code color is already green (=good color at good position)
 	brne	not_di_green
-	sub		zl, r16
+	sub		yl, r16
 	rjmp	msm_comp_colors_loop_k	;skip all checks, color is already good!
 	not_di_green:
-	sub		zl, r16					;remove code offset
+	sub		yl, r16					;remove code offset
 	ldi		r17, 0x03
 msm_comp_colors_loop_i:
-	add		zl, r17					;add column offset to code
+	add		yl, r17					;add column offset to code
 	ld		r18, y					;load code color
 	cpi		r18, color_green		;compare if code color is already green (=good color at good position)
 	brne	not_dk_green
-	sub		zl, r17
+	sub		yl, r17
 	rjmp	msm_comp_colors_loop_i
 not_dk_green:
-	/*sub		zl, r17				;remove code offset
-	add		zl, r17					;add code offset*/
+	sub		yl, r17					;remove code offset
+	add		zl, r17					;add code offset
 	add		xl, r16					;add user color offset
 	ld		r19, x
 	ld		r18, z
-	;compare if color is red (=same color but wrong position)
+	sub		zl, r17					;remove code offset
+	sub		xl, r16					;remove user color offset
+	;check if result color is red (=same color but wrong position)
 	cp		r18, r19				;compare code and player combination
 	brne	color_not_red
 	add		yl, r17					;add offset to result flag
 	ldi		r18, color_red
-	st		yl, r18					;put a red flag on this position
+	st		y, r18					;put a red flag on this position
+	sub		yl, r17
 	rjmp	msm_comp_colors_loop_k	;check next position
 	color_not_red:
 	 
 	dec		r17
 	cpi		r17, 0xff
 	brne	msm_comp_colors_loop_i
-	cpi		r16, 0xff
-	brne	msm_comp_colors_loop_k
+	end_loop:*/
 
+	subi xl, -(0x04) ; BUGGGGGGGGGGGGGg avec ^les yl
+	ldi		yl, low(RESULTS)		;result flags for color comparison output
+	ldi		yh, high(RESULTS)
+	ld r16, Y
+	st x+, r16
+	ldd r16, Y+1
+	st x+, r16
+	ldd r16, Y+2
+	st x+, r16
+	ldd r16, Y+3
+	st x, r16
+	
 	pop		yh
 	pop		yl
 	pop		zh
