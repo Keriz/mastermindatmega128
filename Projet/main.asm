@@ -13,10 +13,10 @@
 .cseg
 .org 0x0000			; memory (PC) location of reset handler
 	rjmp reset
+.org OVF2addr
+	rjmp ovf2
 .org OVF0addr
 	rjmp ovf0
-.org OVF1addr
-	rjmp ovf1
 
 .include "msm.asm"
 .include "lcd.asm"
@@ -32,7 +32,7 @@ matrix_colors:			.byte n_LEDS;defined in msm.asm
 msm_code:				.byte 0x04	; code is composed of 4 colors
 msm_code_result_flags:	.byte 0x04
 num_move:				.byte 1		;save the number of the current move
-random_num:				.byte 4
+random_num:				.byte 2
 win:					.byte 1
 color_plus_counter:		.byte 1
 color_minus_counter:	.byte 1
@@ -40,6 +40,7 @@ column_minus_counter:	.byte 1
 column_plus_counter:	.byte 1
 validate_counter:		.byte 1
 reset_counter:			.byte 1
+
 .cseg
 reset:
 	LDSP	RAMEND
@@ -49,48 +50,25 @@ reset:
 	OUTI	PORTB, 0x00
 	rcall	LCD_init
 
-	; Set Interrupt to trigger when rising edge
-	ldi		r16, (0<<ISC31)|(0<<ISC30)|(0<<ISC21)|(0<<ISC20)|(0<<ISC11)|(0<<ISC10)|(0<<ISC01)|(0<<ISC00)
-	sts		EICRA, r16			 
-
-	ldi		r16, (0<<INT0)|(0<<INT1)|(0<<INT2)|(0<<INT3)
-	out		EIMSK, r16
-
-	ldi		r16, 0x00
-	sts		EIFR, r16
-
-	
-	;configure Timer 0 interrupt
+	;configure Timer 0 & 2 interrupt
 	OUTI	TCCR0,	(0<<CS02)|(1<<CS01)|(1<<CS00)
-	OUTI	TCCR0,	(0<<CS22)|(0<<CS21)|(1<<CS00)
+	OUTI	TCCR0,	(0<<CS22)|(0<<CS21)|(1<<CS20)
 	OUTI	ASSR,	(1<<AS0)
-	OUTI	TIMSK,	(1<<TOIE0, 1<<TOIE1)
+	OUTI	TIMSK,	(1<<TOIE0)|(1<<TOIE2)
 
-	; enable interrupt flag
 	sei
 
 	rcall	msm_clear_matrix
 	rcall	msm_LED_disp
 
-	ldi		XH, high(num_move)
+	ldi		XH, high(num_move)					;set move number to 0
     ldi		XL, low(num_move)
-	ldi		a0, 0x00 ;move number 0
+	ldi		a0, 0x00
 	st		x, a0
 
-	ldi		XH, high(msm_code)
-    ldi		XL, low(msm_code)
-	ldi		a0, 0x01 ;move number 0
-	ldi		a1, 0x02 ;move number 0
-	ldi		a2, 0x03 ;move number 0
-	ldi		a3, 0x04 ;move number 0
-	st		x+, a0
-	st		x+, a1
-	st		x+,	a2
-	st		x,	a3
-
-	ldi		XH, high(msm_code_result_flags)
+	ldi		XH, high(msm_code_result_flags)		;init the result flags
     ldi		XL, low(msm_code_result_flags)
-	ldi		a0, 0x00 ;move number 0
+	ldi		a0, 0x00			
 	st		x+, a0
 	st		x+, a0
 	st		x+,	a0
@@ -99,14 +77,19 @@ reset:
 	ldi		yh, 0x00 ; pointing to row 0
 	ldi		yl, 0x00 ; pointing to column 0
 
+	ldi		XH, high(validate_counter)
+    ldi		XL, low(validate_counter)
+
+	game_not_started:
+	ldi		r17, TIMER_NB_CNT
+	ld		r16, x ; check button validate 
+	cp		r16, r17
+	brlo	game_not_started
+	ldi		r16, 0x00
+	st		x, r16
+	OUTI	TIMSK,	(1<<TOIE0)|(0<<TOIE2)		;deactivate number generation
+
 main:
-	; test the different colors
-
-	/*ldi a0, 0x00
-	rcall ws2812b4_ld_colors
-	rcall ws2812b4_byte3wr
-
-	rcall ws2812b4_reset*/
 	ldi		XH, high(color_plus_counter)
     ldi		XL, low(color_plus_counter)
 	ldi		r17, TIMER_NB_CNT
@@ -127,6 +110,8 @@ main:
 	st		x, r16
 	rcall	color_minus
 	no_color_minus:
+
+	ldi		r17, 0x02 ;0.5s to switch columns & validate
 	inc		xl ; check button column_minus 
 	ld		r16, x
 	cp		r16, r17
@@ -175,14 +160,15 @@ main:
 
     rjmp main
 
-ovf1:
-	ldi XH, high(random_num)
-    ldi XL, low(random_num)
-	ld a42, x
-	inc a42
-	cpi	a42, 0x08
-	brne
-
+ovf2:
+	ldi		XH, high(random_num)
+    ldi		XL, low(random_num)
+	ld		r16, x
+	inc		r16
+	st		x+, r16
+	ld		r16, x
+	inc		r16
+	st		x, r16
 reti
 
 ovf0:
@@ -328,6 +314,45 @@ column_plus:
 ret
 
 
+extract_random_num:
+	ldi		XH, high(random_num)
+    ldi		XL, low(random_num)
+	ld		r17, x
+
+	mov r16, r17
+	andi	r16, 0b00000111
+	inc		r16						; -> be sure that it wont be black
+	mov		a0, r16					;assign first code color
+
+	mov r16, r17
+	lsr r16
+	lsr r16
+	lsr r16
+	andi	r16, 0b00000111
+	inc		r16						; -> be sure that it wont be black
+	andi	r16, 0b00000111
+	mov		a0, r16					;assign first code color
+
+	mov r16, r17
+	andi	r16, 0b00000111
+	inc		r16						; -> be sure that it wont be black
+	andi	r16, 0b00000111			;remove possible overflow
+	mov		a0, r16					;assign first code color
+
+	mov r16, r17
+	andi	r16, 0b00000111
+	inc		r16						; -> be sure that it wont be black
+	mov		a0, r16					;assign first code color
+
+	ldi		a1, 0x02 ;move number 0
+	ldi		a2, 0x03				;
+	ldi		a3, 0x04				
+	st		x+, a0
+	st		x+, a1
+	st		x+,	a2
+	st		x,	a3
+
+ret
 
 validate:
 	;save sreg? & working registers
