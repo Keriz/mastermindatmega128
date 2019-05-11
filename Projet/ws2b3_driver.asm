@@ -11,7 +11,7 @@
 .include "macros.asm"		; include macro definitions
 .include "definitions.asm"	; include register/constant definitions
 .include "colorslu.asm"
-
+.include "utils.asm"
 
 ; WS2812b4_WR0	; macro ; arg: void; used: void
 ; purpose: write an active-high zero-pulse to PD1
@@ -40,15 +40,14 @@
 ; ws2812b4_ld_colors	;arg: void; used: r16 (rw), r17, r18 (w) (=output)
 ; purpose: load a pixel GRB values into registers 
 ws2812b4_ld_colors:
-	push zl
-	push zh
+	;should push and pop other used variables?
+	PUSHZ
 	
 	ldi zh, high(colors*2)
 	ldi zl, low(colors*2)
-	add zl, a0 ; add 3 times a0
-	add zl, a0
-	add zl, a0
-	lpm
+	ADD3T zl, a0			;	offset color
+
+	lpm						
 	mov a0, r0
 	inc zl
 	lpm
@@ -56,9 +55,8 @@ ws2812b4_ld_colors:
 	inc zl
 	lpm
 	mov a2, r0
-	pop zh
-	pop zl
 
+	POPZ
 ret
 	
 ; ws2812b4_init		; arg: void; used: r16 (w)
