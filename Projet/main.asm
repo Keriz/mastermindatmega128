@@ -64,9 +64,17 @@ reset:
 	ldi		a0, 0x01
 	st		x, a0
 
-	LDIX	win								;int win flag to 0
+	LDIX	win								;init win flag to 0
 	ldi		a0, 0x00
 	st		x, a0
+
+	LDIX	color_plus_counter				;init all buttons to 0
+	st		x+, a0
+	st		x+, a0
+	st		x+, a0
+	st		x+, a0
+	st		x+, a0
+	st		x,	a0
 
 	rcall	reset_flags
 
@@ -96,6 +104,7 @@ reset:
 
 	OUTI	TIMSK,	(1<<TOIE0)|(0<<TOIE2)	;deactivate rand_num generation
 
+	cli
 	rcall	msm_clear_matrix
 	rcall	msm_LED_disp
 	rcall	extract_random_num
@@ -103,6 +112,7 @@ reset:
 	rcall	LCD_clear		
 	PRINTF	LCD_putc
 	.db		"Move Num:1 ",0
+	sei
 
 main: 
 	LDIX	color_plus_counter
@@ -345,32 +355,32 @@ extract_random_num:
 	;no need to push, pop: only called in reset
 	LDIX	random_num
 
+	ldi		b0, color_white			;could do a macro
 	ld		r17, x+
-	ldi		r18, color_white		;could do a macro
 	mov		r16, r17
 	andi	r16, 0b00000111
-	cpse	r16, r18
-	inc		r16						; -> be sure that it wont be black
-	mov		a0, r16					;assign first code color
+	cpse	r16, b0
+	inc		r16							; -> be sure that it wont be black
+	mov		a0, r16						;assign first code color
 
 	mov		r16, r17
-	DIV8	r16						;take bits from 3 to 6
+	DIV8	r16							;take bits from 3 to 6
 	andi	r16, 0b00000111
-	cpse	r16, r18
-	inc		r16						; -> be sure that it wont be black
-	mov		a1, r16					;assign second code color
+	cpse	r16, b0
+	inc		r16							; -> be sure that it wont be black
+	mov		a1, r16						;assign second code color
 
 	ld		r17, x						;use byte 2
 	mov		r16, r17
 	andi	r16, 0b00000111
-	cpse	r16, r18
+	cpse	r16, b0
 	inc		r16							; -> be sure that it wont be black
 	mov		a2, r16						;assign third code color
 
 	mov		r16, r17
 	DIV8	r16							;take bits from 3 to 6
 	andi	r16, 0b00000111
-	cpse	r16, r18
+	cpse	r16, b0
 	inc		r16							; -> be sure that it wont be black
 	mov		a3, r16						;assign first code color
 
