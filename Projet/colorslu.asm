@@ -12,11 +12,11 @@
 .equ color_green	=	0x06
 .equ color_white	=	0x07
 
-colors:
+colors:			;GRB -> not RGB
 	.db 0x00, 0x00, 0x00, 0x0f, 0x0f, 0x00, 0x00, 0x07, 0x0, 0x0, 0x00, 0x07, 0x07, 0x00, 0x07, 0x00, 0x03, 0x07
-	;	black(#000000),   yellow (#ffc12b), red(##ff0001),   blue(#000000),   cyan(#070007),    purple(#800080)
+	;	black(#000000),   yellow (#0f0f00), red(##070000),   blue(#000007),   cyan(#000707),    purple(#030007)
 	.db 0x07, 0x00, 0x00, 0x0f, 0xf, 0xf
-	;	green(#000007),   white (#ffffff)
+	;	green(#000700),   white (#ffffff)
 	; usage of the lookup table: 
 	; 0=black
 	; 1=yellow

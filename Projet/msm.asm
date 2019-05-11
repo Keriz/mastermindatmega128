@@ -155,19 +155,20 @@ not_dk_green:
 
 	end_loop:
 
-	subi	xl, -0x04
-
-	LDIY	RESULTS					;set result flags for set_win		
+	subi	xl, -0x04				;column offset 
+	
+	;to improve the game, we could randomize where we put the flags on the display
+ 	LDIY	RESULTS					;set result flags for set_win		
 	ld		r16, Y
+	st		x+, r16
+	ldd		r16, Y+3
 	st		x+, r16
 	ldd		r16, Y+1
 	st		x+, r16
 	ldd		r16, Y+2
-	st		x+, r16
-	ldd		r16, Y+3
 	st		x, r16
 
-	POPZ
+	POPZ 
 	POPY
 	POPX
 	pop		r19

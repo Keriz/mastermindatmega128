@@ -37,8 +37,8 @@ random_num:				.byte 2
 win:					.byte 1
 color_plus_counter:		.byte 1
 color_minus_counter:	.byte 1
-column_minus_counter:	.byte 1
 column_plus_counter:	.byte 1
+column_minus_counter:	.byte 1
 validate_counter:		.byte 1
 reset_counter:			.byte 1
 
@@ -55,8 +55,8 @@ reset:
 	OUTI	TCCR0,	(0<<CS02)|(1<<CS01)|(1<<CS00)
 	OUTI	TCCR2,	(0<<CS22)|(0<<CS21)|(1<<CS20)
 	OUTI	ASSR,	(1<<AS0)
-	sei
-
+	OUTI	TIMSK,	(0<<TOIE0)|(0<<TOIE2)	;init done, start the timers
+	
 	rcall	msm_clear_matrix
 	rcall	msm_LED_disp
 
@@ -68,13 +68,22 @@ reset:
 	ldi		a0, 0x00
 	st		x, a0
 
-	rcall reset_flags
+	rcall	reset_flags
 
 	ldi		yh, 0x00						; pointing to row 0
 	ldi		yl, 0x00						; pointing to column 0
 
 	LDIX	validate_counter
 
+	rcall	LCD_clear		
+	PRINTF	LCD_putc
+	.db		"PRESS VALID. TO",0
+	ldi		a0, 0x40						;point to second LCD row
+	rcall	LCD_pos
+	PRINTF	LCD_putc
+	.db		"START THE GAME ",0
+
+	sei
 	OUTI	TIMSK,	(1<<TOIE0)|(1<<TOIE2)	;init done, start the timers!
 
 	game_not_started:
@@ -116,15 +125,6 @@ main:
 	rcall	color_minus
 	no_color_minus:
 
-	inc		xl				; check button column_minus 
-	ld		r16, x
-	cp		r16, r17
-	brlo	no_column_minus
-	ldi		r16, 0x00
-	st		x, r16
-	rcall	column_minus
-	no_column_minus:
-	
 	inc		xl				; check button column_plus
 	ld		r16, x
 	cp		r16, r17
@@ -133,6 +133,15 @@ main:
 	st		x, r16
 	rcall	column_plus
 	no_column_plus:
+
+	inc		xl				; check button column_minus 
+	ld		r16, x
+	cp		r16, r17
+	brlo	no_column_minus
+	ldi		r16, 0x00
+	st		x, r16
+	rcall	column_minus
+	no_column_minus:
 
 	ldi		r17, LONG_PRESS
 	inc		xl				;check button validate
@@ -400,7 +409,7 @@ validate:
 
 	rcall	LCD_clear		
 	PRINTF	LCD_putc
-	.db		"GAGNE", 0					;display win
+	.db		"WIN,PRESS RESET", 0					;display win
 
 freeze_game:
 	rcall print_code
@@ -427,7 +436,7 @@ game_notover:
 	brne	game_continue
 	rcall	LCD_clear
 	PRINTF	LCD_putc
-	.db		"PERDU", 0
+	.db		"LOST,PRESS RESET ", 0
 	rjmp	freeze_game
 
 game_continue:
@@ -491,7 +500,8 @@ print_code:
 	;save registers and sreg?
 	ldi		a0, 0x40					;point to second LCD row
 	rcall	LCD_pos
-
+	PRINTF	LCD_putc
+	.db		"CODE:  ",0
 	LDIX	msm_code		
 	ld		a0, x+
 	PRINTF	LCD
