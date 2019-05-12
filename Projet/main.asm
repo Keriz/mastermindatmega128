@@ -355,7 +355,7 @@ extract_random_num:
 	;no need to push, pop: only called in reset
 	LDIX	random_num
 
-	ldi		b0, color_white			;could do a macro
+	ldi		b0, color_white				;could do a macro
 	ld		r17, x+
 	mov		r16, r17
 	andi	r16, 0b00000111

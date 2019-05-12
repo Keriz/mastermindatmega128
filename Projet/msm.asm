@@ -16,7 +16,7 @@
 .equ RESULTS = 0x0144		;MATRIX_RAM + n_LEDS + code_offset (0x04)
 
 ;msm_LED_disp		; arg: void; used: TODO
-; purpose: display the game state to the LED matrix
+;purpose: display the game state to the LED matrix
 msm_LED_disp:
 	push	b0
 	push	a0
