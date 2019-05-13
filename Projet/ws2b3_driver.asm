@@ -37,10 +37,16 @@
 	;nop
 .endm
 
-; ws2812b4_ld_colors	;arg: void; used: r16 (rw), r17, r18 (w) (=output)
-; purpose: load a pixel GRB values into registers 
+;ws2812b4_ld_colors	
+;arg: a0 (= color to display from the lookup table);
+;used: a0, a1, a2 (=GRB values of the color to display)
+;used: Z points to the lookup table in the program memory
+;purpose: load a pixel GRB values into registers 
 ws2812b4_ld_colors:
-	;should push and pop other used variables?
+	;should push and pop other used variables
+	;however, this function is only called when the value of the registers dont matter
+	;so we can erase them, and fasten this function which needs to be fast 
+	;(refer to the ws2812 datasheet for the actual speed needed)
 	PUSHZ
 	
 	ldi zh, high(colors*2)

@@ -4,6 +4,7 @@
  *  Created: 5/3/2019 7:31:33 PM
  *   Author: guillaume.thivolet & fahradin.mujovi
  */ 
+ ;This file contains the core game code functions.
 
 .include "ws2b3_driver.asm"
 
@@ -15,20 +16,22 @@
 
 .equ RESULTS = 0x0144		;MATRIX_RAM + n_LEDS + code_offset (0x04)
 
-;msm_LED_disp		; arg: void; used: TODO
-;purpose: display the game state to the LED matrix
+;msm_LED_disp		
+;arg: void
+;used: a0,b0
+;used: X points to the led matrix in SRAM @ MATRIX_RAM
+;purpose: display the LED matrix in SRAM onto the hardware
 msm_LED_disp:
 	push	b0
 	push	a0
 	PUSHX
 
-	ldi		b0, n_LEDS				; for loop i < 64 ;maybe r20 is not good because used as b0 later
+	ldi		b0, n_LEDS
 	LDIX	MATRIX_RAM
 ;for loop over the memory (matrix_colors) (FROM END TO BEGINNING)
-;load color from lookup (ws2812b4_ld_colors)
 msm_LED_loop:
 	ld		a0, x+
-	rcall	ws2812b4_ld_colors
+	rcall	ws2812b4_ld_colors		;load color from lookup (ws2812b4_ld_colors)
 	rcall	ws2812b4_byte3wr
 	dec		b0
 	brne	msm_LED_loop
@@ -40,8 +43,15 @@ msm_LED_loop:
 	rcall	ws2812b4_reset			;display the matrix
 ret
 
-;msm_comp_colors	; arg: r16, r17, r18, r19 (=input colors); used: r22, r23, r24, r25 (w) (=output)
-;purpose: Compares the input color combination (each in GRB) and outputs the games results (right side of the matrix).
+;msm_comp_color
+;arg: YH (=current row)
+;used: r16, r17, r18, r19 (rw)		;could have used a0..a3
+;used: Z to lookup the code in SRAM @ CODE
+;used: X points to the led matrix in SRAM @ MATRIX_RAM
+;used: Y to point to the flags in SRAM @ RESULTS 
+;output: 4 bytes containing the flags in SRAM @ RESULTS
+;purpose: Compares the user input color combination (each in GRB) and outputs the games results in
+;terms of flags in the memory and also on the matrix led.
 msm_comp_colors:
 	push	r16
 	push	r17
@@ -93,22 +103,13 @@ not_green:
 	
 	ldi		r16, 0x04				;init external loop counter
 
-	;d points to the flags
-	;u points to the user colors
-	;c points to the code colors
-	;for k=3:0
-		;if d_k != color_green				
-			;for i=3:0
-				;if d_i != color_green
-					;color c_i ==  color u_k ? 
-						;if d_i == color_red; break
-						;else; d_i == color_red
+	;running the second part of the algorithm
 
 msm_comp_colors_loop_k:
  	dec		r16
 	cpi		r16, 0xff
 	breq	end_loop
-	add		yl, r16					;add column offset to code  
+	add		yl, r16					;add column offset to flags  
 	ld		r18, y					;load code color
 	cpi		r18, color_green		;compare if code color is already green (=good color at good position)
 	brne	not_di_green
@@ -118,6 +119,8 @@ msm_comp_colors_loop_k:
 	sub		yl, r16					;remove code offset
 	ldi		r17, 0x03				;init internal loop counter
 msm_comp_colors_loop_i:
+	cpi		r17, 0xff				;if no more i to check, go to the next k
+	brne	msm_comp_colors_loop_k	;	
 	add		yl, r17					;add column offset to code
 	ld		r18, y					;load code color
 	cpi		r18, color_green		;compare if code color is already green (=good color at good position)
@@ -140,18 +143,15 @@ not_dk_green:
 	ld		r18, y
 	sub		yl, r17
 	cpi		r18, color_red			;check if there was already a red flag at this position
-	breq	color_not_red
-	add		yl, r17	
+	breq	msm_comp_colors_i		;go to the next i if there was already one
+	add		yl, r17					
 	ldi		r18, color_red
-	st		y, r18					;put a red flag on this position
+	st		y, r18					;put a red flag on this position if there was not already one
 	sub		yl, r17
-	rjmp	msm_comp_colors_loop_k	;check next position
+	rjmp	msm_comp_colors_loop_k	;check next user color
 	color_not_red:
 	dec		r17
-	cpi		r17, 0xff
-	brne	msm_comp_colors_loop_i
-	cpi		r16, 0xff
-	brne	msm_comp_colors_loop_k
+	rjmp	msm_comp_colors_loop_i
 
 	end_loop:
 
@@ -177,6 +177,11 @@ not_dk_green:
 	pop		r16
 ret
 
+;msm_clear_matrix
+;arg: void
+;used: a0, b0,					;could have used a0..a3 and b0..b3 as arguments
+;used: X points to the led matrix in SRAM @ MATRIX_RAM
+;purpose: set all the pixels in the LED matrix to black
 msm_clear_matrix:
 	push	b0
 	push	a0

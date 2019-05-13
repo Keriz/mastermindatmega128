@@ -5,8 +5,8 @@
 ; Author : guillaume.thivolet and fahradin.mujovi
 ;
 ;Entry point of the project, this file includes the main game loop.
-.equ SHORT_PRESS = 0x01
-.equ LONG_PRESS = 0x02
+.equ SHORT_PRESS = 0x01		;0.25s
+.equ LONG_PRESS = 0x02		;0.5s
 .equ MAX_COLOR = 0x08
 .equ MIN_COLOR = 0x00
 .equ MAX_COLUMN = 0x04
@@ -114,11 +114,16 @@ reset:
 	.db		"Move Num:1 ",0
 	sei
 
+;main		
+;args: void
+;used: r16, r17 to check if buttons were pressed
+;used: X points to the buttons counters
+;purpose: it detects if buttons were pressed, and refresh the LED Matrix
 main: 
 	LDIX	color_plus_counter
 	ldi		r17, SHORT_PRESS
 
-	ld		r16, x ; check button color_plus ; maybe we should do a macro
+	ld		r16, x					; check button color_plus ; maybe we should do a macro
 	cp		r16, r17
 	brlo	no_color_plus
 	ldi		r16, 0x00
@@ -126,7 +131,7 @@ main:
 	rcall	color_plus
 	no_color_plus:
 
-	inc		xl				 ; check button color_minus 
+	inc		xl						; check button color_minus 
 	ld		r16, x
 	cp		r16, r17
 	brlo	no_color_minus
@@ -135,7 +140,7 @@ main:
 	rcall	color_minus
 	no_color_minus:
 
-	inc		xl				; check button column_plus
+	inc		xl						; check button column_plus
 	ld		r16, x
 	cp		r16, r17
 	brlo	no_column_plus
@@ -144,7 +149,7 @@ main:
 	rcall	column_plus
 	no_column_plus:
 
-	inc		xl				; check button column_minus 
+	inc		xl						; check button column_minus 
 	ld		r16, x
 	cp		r16, r17
 	brlo	no_column_minus
@@ -154,7 +159,7 @@ main:
 	no_column_minus:
 
 	ldi		r17, LONG_PRESS
-	inc		xl				;check button validate
+	inc		xl						;check button validate
 	ld		r16, x
 	cp		r16, r17
 	brlo	no_validate
@@ -163,7 +168,7 @@ main:
 	rcall	validate
 	no_validate:
 	
-	inc		xl ;check button reset
+	inc		xl						;check button reset
 	ld		r16, x
 	cp		r16, r17
 	brlo	no_reset
@@ -180,6 +185,11 @@ main:
 
     rjmp	main
 
+;ovf2		
+;args: void
+;used: r16
+;used: X points to the random numbers bytes in the SRAM
+;purpose: increment the random number generation bytes
 ovf2:
 	in		_sreg, SREG
 	push	r16
@@ -201,19 +211,22 @@ ovf2:
 	out		SREG,_sreg
 reti
 
+;ovf0		
+;args: PIND
+;used: a0, a1, a2
+;used: X points to the button counters bytes in the SRAM
+;purpose: increment the counters of the buttons that were pressed
 ovf0:
-	;save SREG and registers
 	in		_sreg, SREG
 	push	a0
 	push	a1
 	push	a2
 	PUSHX
 	;too many instructions maybe
-	;for loop to be added
 
 	LDIX	color_plus_counter
 
-	in		a1, PIND			;could do a macro
+	in		a1, PIND			;could do a macro :)
 	ld		a0, x
 	ldi		a2, 0x01			;button state wanted
 	andi	a1, 0x01
@@ -226,7 +239,7 @@ ovf0:
 	
 	in		a1, PIND
 	ld		a0, x
-	ldi		a2, 0x02;button state wanted
+	ldi		a2, 0x02			;button state wanted
 	andi	a1, 0x02;mask
 	cpse	a1, a2
 	inc		a0
@@ -286,6 +299,12 @@ ovf0:
 	out		SREG,_sreg
 reti
 
+;color_plus		
+;args: void
+;used: r16
+;used: Y (to add the offset)
+;used: X points to the led matrix in SRAM @ MATRIX_RAM
+;purpose: increment the color selected by the user
 color_plus:
 	;save sreg??
 	push	r16
@@ -311,6 +330,12 @@ color_plus:
 	pop r16
 ret
 
+;color_minus		
+;args: void
+;used: r16
+;used: Y (to add the offset)
+;used: X points to the led matrix in SRAM @ MATRIX_RAM
+;purpose: decrement the color selected by the user
 color_minus:
 	;save sreg? & working registers
 	push	r16
@@ -332,6 +357,10 @@ color_minus:
 	pop		r16
 ret
 
+;column_minus		
+;args: void
+;used: YL 
+;purpose: decrement the column offset
 column_minus:
 	;save sreg?
 	dec		yl
@@ -341,8 +370,12 @@ column_minus:
 	next_colu_minus:
 ret
 
+;column_minus		
+;args: void
+;used: YL 
+;purpose: increment the column offset
 column_plus:
-	;save sreg?
+	;save sreg? 
 	inc		yl
 	cpi		yl, MAX_COLUMN 
 	brne	next_colu_plus
@@ -350,7 +383,11 @@ column_plus:
 	next_colu_plus:
 ret
 
-
+;extract_random_num		
+;args: 2 bytes in SRAM @ random_num which are used to create the code colors
+;used: r16, r17, a0, a1r7, rq8
+;output: 4 bytes in SRAM @ msm_code
+;purpose: Generates the pseudo-random code for the game
 extract_random_num:
 	;no need to push, pop: only called in reset
 	LDIX	random_num
@@ -392,26 +429,24 @@ extract_random_num:
 	
 ret
 
-;compute flags
-;check if player won
-;display game matrix
-;if coup=derniercoup (7)
-	;LCD string indice = GAGNE OU PERDU
-	;display LCD string
-;wait for the next validate input press to start the game again and rjmp to reset
-;else
-	;LCD string = coup num: X
-	;display LCD string
+;validate		
+;args: 2 bytes in SRAM @ random_num which are used to create the code colors
+;used: r16, r17, 
+;used: a0, a1 (for the LCD display)
+;used: X to lookup bytes in the SRAM
+;used: YH (to increment the row)
+;output: LCD string
+;purpose: game main algorithm
 validate:
 	;save sreg? & working registers
 	PUSHX
 	push	r16
 	push	r17
 
+	rcall	reset_flags					;reset all flags to black before running the algorithm
 	rcall	msm_comp_colors				;set flags in memory
 	rcall	set_win
-	rcall	reset_flags					;for the next move, if any
-	
+
 	LDIX	win
 	ld		r17, x
 	cpi		r17, 0x00					;compare if not win yet
@@ -419,7 +454,7 @@ validate:
 
 	rcall	LCD_clear		
 	PRINTF	LCD_putc
-	.db		"WIN,PRESS RESET", 0					;display win
+	.db		"WIN,PRESS RESET", 0		;display win
 
 freeze_game:
 	rcall print_code
@@ -429,7 +464,7 @@ freeze_game:
 	sei
 
 	LDIX	reset_counter
-	ldi		r17, 0x02 ; 0.5s
+	ldi		r17, LONG_PRESS				; 0.5s
 
 	no_reset_endgame:
 	ld		r16, x						; check button reset
@@ -468,44 +503,49 @@ game_continue:
 	POPX
 ret
 
+;set_win		
+;args: void
+;used: r16, b0
+;used: X to lookup bytes in the SRAM
+;output: 1 byte in SRAM @ win
+;purpose: set the win byte to true if the game is won, false else.
 set_win:
 	PUSHX
-	PUSHY
 	push	r16
 	push	b0
-	push	b1
-	push	b2
-	push	b3
 
-	LDIY	msm_code_result_flags		;result flags for color comparison output
+	LDIX	msm_code_result_flags		;result flags for color comparison output
+	
 	ld		b0, y
-	ldd		b1, y+1	
-	ldd		b2, y+2
-	ldd		b3, y+3
-
 	cpi		b0, color_green
 	brne	not_win
-	cpi		b1, color_green
+	ldd		b0, y+1	
+	cpi		b0, color_green
 	brne	not_win
-	cpi		b2, color_green
+	ldd		b0, y+2
+	cpi		b0, color_green
 	brne	not_win
-	cpi		b3, color_green
+	ldd		b0, y+3
+	cpi		b0, color_green
 	brne	not_win
+	
 	LDIX	win
-	ldi		r16, 0x01					;boolean
+	ldi		r16, 0x01					;boolean true
 	st		x, r16
 
 	not_win:
 
-	pop		b3
-	pop		b2
-	pop		b1
 	pop		b0
 	pop		r16
-	POPY
 	POPX
 ret
 
+;print_code		
+;args: void
+;used: a0
+;used: X points to the SRAM @ msm_code
+;output: LCD
+;purpose: display the game code onto the LCD
 print_code:
 	;save registers and sreg?
 	ldi		a0, 0x40					;point to second LCD row
@@ -527,9 +567,14 @@ print_code:
 	.db		" ",FDEC,a,0
 ret
 
+;reset_flags		
+;args: void
+;used: a0
+;used: X points to the SRAM @ msm_code_result_flags
+;purpose: reset all the flags to black
 reset_flags:
 	LDIX	msm_code_result_flags
-	ldi		a0, 0x00			
+	ldi		a0, color_black		
 	st		x+, a0
 	st		x+, a0
 	st		x+,	a0
