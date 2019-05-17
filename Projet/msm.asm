@@ -121,12 +121,12 @@ msm_comp_colors_loop_k:
 msm_comp_colors_loop_i:
 	dec		r17
 	cpi		r17, 0xff				;if no more i to check, go to the next k
-	brne	msm_comp_colors_loop_k	;	
+	breq	msm_comp_colors_loop_k	;	
 	add		yl, r17					;add column offset to code
 	ld		r18, y					;load code color
 	cpi		r18, color_green		;compare if code color is already green (=good color at good position)
 	brne	not_dk_green
-	sub		yl, r 17
+	sub		yl, r17
 	rjmp	msm_comp_colors_loop_i
 not_dk_green:
 	sub		yl, r17					;remove code offset
