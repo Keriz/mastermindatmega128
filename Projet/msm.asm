@@ -117,16 +117,16 @@ msm_comp_colors_loop_k:
 	rjmp	msm_comp_colors_loop_k	;skip all checks, color is already good!
 	not_di_green:
 	sub		yl, r16					;remove code offset
-	ldi		r17, 0x03				;init internal loop counter
+	ldi		r17, 0x04				;init internal loop counter
 msm_comp_colors_loop_i:
+	dec		r17
 	cpi		r17, 0xff				;if no more i to check, go to the next k
 	brne	msm_comp_colors_loop_k	;	
 	add		yl, r17					;add column offset to code
 	ld		r18, y					;load code color
 	cpi		r18, color_green		;compare if code color is already green (=good color at good position)
 	brne	not_dk_green
-	sub		yl, r17
-	dec		r17
+	sub		yl, r 17
 	rjmp	msm_comp_colors_loop_i
 not_dk_green:
 	sub		yl, r17					;remove code offset
@@ -143,14 +143,13 @@ not_dk_green:
 	ld		r18, y
 	sub		yl, r17
 	cpi		r18, color_red			;check if there was already a red flag at this position
-	breq	msm_comp_colors_i		;go to the next i if there was already one
+	breq	msm_comp_colors_loop_i	;go to the next i if there was already one
 	add		yl, r17					
 	ldi		r18, color_red
 	st		y, r18					;put a red flag on this position if there was not already one
 	sub		yl, r17
 	rjmp	msm_comp_colors_loop_k	;check next user color
 	color_not_red:
-	dec		r17
 	rjmp	msm_comp_colors_loop_i
 
 	end_loop:
