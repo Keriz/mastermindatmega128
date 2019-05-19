@@ -516,16 +516,16 @@ set_win:
 
 	LDIX	msm_code_result_flags		;result flags for color comparison output
 	
-	ld		b0, y
+	ld		b0, x
 	cpi		b0, color_green
 	brne	not_win
-	ldd		b0, y+1	
+	ldd		b0, x+1	
 	cpi		b0, color_green
 	brne	not_win
-	ldd		b0, y+2
+	ldd		b0, x+2
 	cpi		b0, color_green
 	brne	not_win
-	ldd		b0, y+3
+	ldd		b0, x+3
 	cpi		b0, color_green
 	brne	not_win
 	
